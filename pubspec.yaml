@@ -42,9 +42,25 @@ dependencies:
   http: ^1.3.0
   flutter_dotenv: ^5.2.1
   piped_client: ^0.1.2
-  drift: ^2.26.0
   media_kit: ^1.2.0
   hooks_riverpod: ^2.6.1
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+
+  # Database (Drift + PostgreSQL)
+  drift: ^2.26.0
+  drift_postgres: ^1.3.0
+  postgrest: ^2.4.1
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Security
+  flutter_secure_storage: ^9.2.4
+  bcrypt: ^1.1.3
+
+  # Utilities
+  equatable: ^2.0.7
 
 
 dev_dependencies:
@@ -57,6 +73,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+
+  # Build Runners for Drift & Riverpod Generator
+  build_runner: ^2.4.15
+  riverpod_generator: ^2.6.5
+  drift_dev: ^2.26.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,6 +96,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/fonts/
+    - .env
     # - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see

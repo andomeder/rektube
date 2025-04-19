@@ -53,7 +53,7 @@ class SignUpController extends GetxController {
         Get.snackbar(title, message,
             backgroundColor: Colors.redAccent,
             snackPosition: SnackPosition.BOTTOM,
-            colorText: extraColor,
+            colorText: colorOnPrimary,
             margin: EdgeInsets.all(10),
             borderRadius: 8); 
       }

@@ -13,33 +13,33 @@ Widget myTextField({
   return TextField(
     controller: controller,
     obscureText: obscureText,
-    style: TextStyle(color: extraColor),
+    style: TextStyle(color: colorOnPrimary),
     decoration: InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: extraColor, fontSize: 14),
+      hintStyle: TextStyle(color: colorOnPrimary, fontSize: 14),
       prefixIcon:
           prefixIcon != null
-              ? Icon(prefixIcon, color: secondaryColor)
-              : Icon(Icons.person, color: secondaryColor),
+              ? Icon(prefixIcon, color: colorPrimary)
+              : Icon(Icons.person, color: colorPrimary),
       suffixIcon:
           suffixIcon != null
               ? IconButton(
                 onPressed: suffixIcontap,
-                icon: Icon(suffixIcon, color: secondaryColor),
+                icon: Icon(suffixIcon, color: colorPrimary),
               )
               : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: secondaryColor),
+        borderSide: BorderSide(color: colorPrimary),
       ),
       contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: secondaryColor),
+        borderSide: BorderSide(color: colorPrimary),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: secondaryColor),
+        borderSide: BorderSide(color: colorPrimary),
       ),
     ),
   );

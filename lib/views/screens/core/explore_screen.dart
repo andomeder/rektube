@@ -7,14 +7,14 @@ class Explore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: colorBackground,
       appBar: AppBar(
         title: Text("Explore"),
-        backgroundColor: mainColor,
+        backgroundColor: colorBackground,
         automaticallyImplyLeading: false,
       ),
       body: Center(
-        child: Text("Explore Screen", style: TextStyle(color: extraColor),),
+        child: Text("Explore Screen", style: TextStyle(color: colorOnPrimary),),
       ),
     );
   }

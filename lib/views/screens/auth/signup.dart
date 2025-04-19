@@ -20,7 +20,7 @@ class SignUp extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
     TextEditingController confirmPasswordController = TextEditingController();
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: colorBackground,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -41,7 +41,7 @@ class SignUp extends StatelessWidget {
                   child: Text(
                     "Sign Up",
                     style: TextStyle(
-                      color: secondaryColor,
+                      color: colorPrimary,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
@@ -65,19 +65,21 @@ class SignUp extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 10),
+                myTextField(hintText: "Enter Username", controller: userNameController),
+                SizedBox(height: 10),
                 myTextField(
                   controller: emailController,
-                  hintText: "Enter Email",
+                  hintText: "Enter Email*",
                   prefixIcon: Icons.email,
                 ),
                 SizedBox(height: 10),
                 PasswordField(
-                  hintText: "Enter Password",
+                  hintText: "Enter Password*",
                   controller: passwordController,
                 ),
                 SizedBox(height: 10),
                 PasswordField(
-                  hintText: "Confirm Password",
+                  hintText: "Confirm Password*",
                   controller: confirmPasswordController,
                 ),
                 Padding(
@@ -99,7 +101,7 @@ class SignUp extends StatelessWidget {
                           "Sign Up details validated",
                           backgroundColor: Colors.green,
                           snackPosition: SnackPosition.BOTTOM,
-                          colorText: mainColor,
+                          colorText: colorBackground,
                           margin: EdgeInsets.all(10),
                           borderRadius: 8,
                         );
@@ -107,7 +109,7 @@ class SignUp extends StatelessWidget {
                       }
                     },
                     label: "Sign Up",
-                    color: secondaryColor,
+                    color: colorPrimary,
                   ),
                 ),
                 Padding(
@@ -118,7 +120,7 @@ class SignUp extends StatelessWidget {
                       Text(
                         "Alredy have an account? ",
                         style: TextStyle(
-                          color: extraColor,
+                          color: colorOnPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -130,9 +132,9 @@ class SignUp extends StatelessWidget {
                         child: Text(
                           "Login",
                           style: TextStyle(
-                            color: extraColor,
+                            color: colorOnPrimary,
                             decoration: TextDecoration.underline,
-                            decorationColor: secondaryColor,
+                            decorationColor: colorPrimary,
                             decorationThickness: 2,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,

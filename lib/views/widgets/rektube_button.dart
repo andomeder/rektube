@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rektube/configs/colours.dart';
 
-Widget rektubeButton(VoidCallback work, {required label, color = extraColor}) {
+Widget rektubeButton(VoidCallback work, {required label, color = colorOnPrimary}) {
   return MaterialButton(
     onPressed: work,
     color: color,

@@ -7,14 +7,14 @@ class Library extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: colorBackground,
       appBar: AppBar(
         title: Text("Library"),
-        backgroundColor: mainColor,
+        backgroundColor: colorBackground,
         automaticallyImplyLeading: false,
       ),
       body: Center(
-        child: Text("Library Screen", style: TextStyle(color: extraColor),),
+        child: Text("Library Screen", style: TextStyle(color: colorOnPrimary),),
       ),
     );
   }

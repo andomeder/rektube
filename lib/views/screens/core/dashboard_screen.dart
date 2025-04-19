@@ -9,10 +9,10 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: colorBackground,
       appBar: AppBar(
-        title: Text("Rektube", style: TextStyle(color: extraColor),),
-        backgroundColor: mainColor,
+        title: Text("Rektube", style: TextStyle(color: colorOnPrimary),),
+        backgroundColor: colorBackground,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -34,7 +34,7 @@ class Dashboard extends StatelessWidget {
               child: Text(
                 "Home",
                 style: TextStyle(
-                  color: secondaryColor,
+                  color: colorPrimary,
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),

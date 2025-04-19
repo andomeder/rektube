@@ -22,7 +22,7 @@ class Login extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
     userNameController.text = username;
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: colorBackground,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -32,14 +32,14 @@ class Login extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Image.asset('assets/images/logo-no-background.png', height: 90, width: 90,),
+                  child: Image.asset('assets/images/logo-no-background.png', height: 100, width: 100,),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
                     "Login",
                     style: TextStyle(
-                      color: secondaryColor,
+                      color: colorPrimary,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
@@ -68,11 +68,11 @@ class Login extends StatelessWidget {
                           "Welcome ${userNameController.text.trim()}",
                           "Welcome to Rektube",
                         );
+                        Get.offAndToNamed(AppRoutes.navigation);
                       }
-                      Get.offAndToNamed(AppRoutes.navigation);
                     },
                     label: "Login",
-                    color: secondaryColor,
+                    color: colorPrimary,
                   ),
                 ),
                 Padding(
@@ -83,7 +83,7 @@ class Login extends StatelessWidget {
                       Text(
                         "Don't have an account? ",
                         style: TextStyle(
-                          color: extraColor,
+                          color: colorOnPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -96,9 +96,9 @@ class Login extends StatelessWidget {
                         child: Text(
                           "Sign Up",
                           style: TextStyle(
-                            color: extraColor,
+                            color: colorOnPrimary,
                             decoration: TextDecoration.underline,
-                            decorationColor: secondaryColor,
+                            decorationColor: colorPrimary,
                             decorationThickness: 2,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -115,9 +115,9 @@ class Login extends StatelessWidget {
                     GestureDetector(
                       child: Text("Forgot Password?",
                           style: TextStyle(
-                            color: extraColor,
+                            color: colorOnPrimary,
                             decoration: TextDecoration.underline,
-                            decorationColor: secondaryColor,
+                            decorationColor: colorPrimary,
                             decorationThickness: 2,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -127,7 +127,7 @@ class Login extends StatelessWidget {
                         Get.snackbar("Info", "Forgot Password functionality is not available yet", 
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: Colors.amber,
-                        colorText: extraColor
+                        colorText: colorOnPrimary
                         );
                       }
                     )

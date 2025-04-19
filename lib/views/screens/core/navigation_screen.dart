@@ -17,15 +17,15 @@ class Navigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: colorBackground,
       bottomNavigationBar: Obx(() => BottomNavigationBar(items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Explore'),
         BottomNavigationBarItem(icon: Icon(Icons.list_outlined), label: 'Library')
       ],
-      backgroundColor: mainColor,
-      selectedItemColor: secondaryColor,
-      unselectedItemColor: extraColor,
+      backgroundColor: colorBackground,
+      selectedItemColor: colorPrimary,
+      unselectedItemColor: colorOnPrimary,
       currentIndex: navigationController.selectedIndex.value,
       onTap: (index) => navigationController.changeIndex(index),)),
       body: Obx(() => screens[navigationController.selectedIndex.value]),
