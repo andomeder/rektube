@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rektube/configs/colours.dart';
 
-class Explore extends StatelessWidget {
-  const Explore({super.key});
+class ExploreScreen extends StatelessWidget {
+  const ExploreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

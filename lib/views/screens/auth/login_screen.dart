@@ -10,8 +10,8 @@ import 'package:rektube/views/widgets/text_field.dart';
 
 var store = GetStorage();
 
-class Login extends StatelessWidget {
-  const Login({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

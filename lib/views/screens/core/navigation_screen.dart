@@ -9,10 +9,10 @@ import 'package:rektube/views/screens/core/library_screen.dart';
 final NavigationController navigationController = Get.put(
   NavigationController(),
 );
-List<Widget> screens = [Dashboard(), Explore(), Library()];
+List<Widget> screens = [DashboardScreen(), ExploreScreen(), LibraryScreen()];
 
-class Navigation extends StatelessWidget {
-  const Navigation({super.key});
+class NavigationScreen extends StatelessWidget {
+  const NavigationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

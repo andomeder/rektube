@@ -7,8 +7,8 @@ import 'package:rektube/views/widgets/password_field.dart';
 import 'package:rektube/views/widgets/rektube_button.dart';
 import 'package:rektube/views/widgets/text_field.dart';
 
-class SignUp extends StatelessWidget {
-  const SignUp({super.key});
+class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

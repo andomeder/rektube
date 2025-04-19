@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:rektube/configs/colours.dart';
 import 'package:rektube/utils/routes.dart';
 
-class Dashboard extends StatelessWidget {
-  const Dashboard({super.key});
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

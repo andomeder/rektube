@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rektube/configs/colours.dart';
 
-class Library extends StatelessWidget {
-  const Library({super.key});
+class LibraryScreen extends StatelessWidget {
+  const LibraryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
