@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:rektube/configs/colours.dart';
-import 'package:rektube/controllers/auth/login_controller.dart';
-import 'package:rektube/utils/routes.dart';
+import 'package:rektube/controllers/auth/signup_controller.dart';
 import 'package:rektube/views/widgets/password_field.dart';
 import 'package:rektube/views/widgets/rektube_button.dart';
 import 'package:rektube/views/widgets/text_field.dart';
 
-var store = GetStorage();
-
-class Login extends StatelessWidget {
-  const Login({super.key});
+class SignUp extends StatelessWidget {
+  const SignUp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final LoginController loginController = Get.put(LoginController());
-    String username = store.read("username") ?? "";
-    //String password = store.read("password") ?? "";
+    final SignUpController signUpController = Get.put(SignUpController());
+    TextEditingController firstNameController = TextEditingController();
+    TextEditingController lastNameController = TextEditingController();
     TextEditingController userNameController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
-    userNameController.text = username;
+    TextEditingController confirmPasswordController = TextEditingController();
     return Scaffold(
       backgroundColor: mainColor,
       body: Center(
@@ -32,12 +29,16 @@ class Login extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Image.asset('assets/images/logo-no-background.png', height: 90, width: 90,),
+                  child: Image.asset(
+                    'assets/images/logo-no-background.png',
+                    height: 100,
+                    width: 100,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
-                    "Login",
+                    "Sign Up",
                     style: TextStyle(
                       color: secondaryColor,
                       fontSize: 30,
@@ -45,33 +46,66 @@ class Login extends StatelessWidget {
                     ),
                   ),
                 ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: myTextField(
+                        controller: firstNameController,
+                        hintText: "First Name",
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: myTextField(
+                        controller: lastNameController,
+                        hintText: "Last Name",
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
                 myTextField(
-                  hintText: "Enter Username",
-                  controller: userNameController,
+                  controller: emailController,
+                  hintText: "Enter Email",
+                  prefixIcon: Icons.email,
                 ),
                 SizedBox(height: 10),
                 PasswordField(
                   hintText: "Enter Password",
                   controller: passwordController,
                 ),
+                SizedBox(height: 10),
+                PasswordField(
+                  hintText: "Confirm Password",
+                  controller: confirmPasswordController,
+                ),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: rektubeButton(
                     () async {
-                      bool isValid = loginController.validateLogin(
+                      bool isValid = signUpController.validateSignup(
+                        firstNameController.text.trim(),
+                        lastNameController.text.trim(),
                         userNameController.text.trim(),
+                        emailController.text.trim(),
                         passwordController.text.trim(),
+                        confirmPasswordController.text.trim(),
                       );
-
+        
                       if (isValid) {
-                        loginController.showSuccessSnackbar(
-                          "Welcome ${userNameController.text.trim()}",
-                          "Welcome to Rektube",
+                        Get.snackbar(
+                          "Success",
+                          "Sign Up details validated",
+                          backgroundColor: Colors.green,
+                          snackPosition: SnackPosition.BOTTOM,
+                          colorText: mainColor,
+                          margin: EdgeInsets.all(10),
+                          borderRadius: 8,
                         );
+                        Get.offAndToNamed("/home");
                       }
-                      Get.offAndToNamed("/home");
                     },
-                    label: "Login",
+                    label: "Sign Up",
                     color: secondaryColor,
                   ),
                 ),
@@ -81,7 +115,7 @@ class Login extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account? ",
+                        "Alredy have an account? ",
                         style: TextStyle(
                           color: extraColor,
                           fontWeight: FontWeight.bold,
@@ -90,11 +124,10 @@ class Login extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          //Get.toNamed("/signup");
-                          Get.toNamed(AppRoutes.signup);
+                          Get.back();
                         },
                         child: Text(
-                          "Sign Up",
+                          "Login",
                           style: TextStyle(
                             color: extraColor,
                             decoration: TextDecoration.underline,
@@ -104,35 +137,10 @@ class Login extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      child: Text("Forgot Password?",
-                          style: TextStyle(
-                            color: extraColor,
-                            decoration: TextDecoration.underline,
-                            decorationColor: secondaryColor,
-                            decorationThickness: 2,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          )),
-                      onTap: () {
-                        print("Forgot Password tapped");
-                        Get.snackbar("Info", "Forgot Password functionality is not available yet", 
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.amber,
-                        colorText: extraColor
-                        );
-                      }
-                    )
-                  ],
-                )
               ],
             ),
           ),

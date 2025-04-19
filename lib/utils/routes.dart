@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:rektube/views/screens/auth/login.dart';
+import 'package:rektube/views/screens/auth/signup.dart';
 
 class AppRoutes {
   static const String login = "/";
@@ -9,5 +10,6 @@ class AppRoutes {
 
   static List<GetPage> routes = [
     GetPage(name: login, page: () => Login()),
+    GetPage(name: signup, page: () => SignUp()),
   ];
 }
