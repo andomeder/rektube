@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rektube/configs/colours.dart';
 import 'package:rektube/controllers/auth/signup_controller.dart';
+import 'package:rektube/utils/routes.dart';
 import 'package:rektube/views/widgets/password_field.dart';
 import 'package:rektube/views/widgets/rektube_button.dart';
 import 'package:rektube/views/widgets/text_field.dart';
@@ -102,7 +103,7 @@ class SignUp extends StatelessWidget {
                           margin: EdgeInsets.all(10),
                           borderRadius: 8,
                         );
-                        Get.offAndToNamed("/home");
+                        Get.offAndToNamed(AppRoutes.navigation);
                       }
                     },
                     label: "Sign Up",

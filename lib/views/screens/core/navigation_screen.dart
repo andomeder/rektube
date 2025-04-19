@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:rektube/configs/colours.dart';
+import 'package:rektube/controllers/core/navigation_controller.dart';
+import 'package:rektube/views/screens/core/dashboard_screen.dart';
+import 'package:rektube/views/screens/core/explore_screen.dart';
+import 'package:rektube/views/screens/core/library_screen.dart';
+
+final NavigationController navigationController = Get.put(
+  NavigationController(),
+);
+List<Widget> screens = [Dashboard(), Explore(), Library()];
+
+class Navigation extends StatelessWidget {
+  const Navigation({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: mainColor,
+      bottomNavigationBar: Obx(() => BottomNavigationBar(items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: 'Explore'),
+        BottomNavigationBarItem(icon: Icon(Icons.list_outlined), label: 'Library')
+      ],
+      backgroundColor: mainColor,
+      selectedItemColor: secondaryColor,
+      unselectedItemColor: extraColor,
+      currentIndex: navigationController.selectedIndex.value,
+      onTap: (index) => navigationController.changeIndex(index),)),
+      body: Obx(() => screens[navigationController.selectedIndex.value]),
+    );
+  }
+}

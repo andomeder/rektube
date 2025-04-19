@@ -69,7 +69,7 @@ class Login extends StatelessWidget {
                           "Welcome to Rektube",
                         );
                       }
-                      Get.offAndToNamed("/home");
+                      Get.offAndToNamed(AppRoutes.navigation);
                     },
                     label: "Login",
                     color: secondaryColor,
