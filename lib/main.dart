@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -23,11 +24,22 @@ import 'package:rektube/views/widgets/common/loading_indicator.dart';
 
 
 void main() async {
+  // --- Start Initialization ---
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
-  // final db = AppDatabase.instance; // Optional DB pre-init
 
-  // Ensure you have ProviderScope at the root
+  // Load environment variables FIRST
+  try {
+    await dotenv.load(fileName: ".env"); // Specify filename if needed
+    print(".env file loaded successfully.");
+  } catch (e) {
+    print("Error loading .env file: $e");
+  }
+
+  // Initialize GetStorage
+  await GetStorage.init();
+  print("GetStorage initialized.");
+
+  // Run the app within Riverpod's ProviderScope
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -45,31 +57,42 @@ class MyApp extends ConsumerWidget {
       // Conditionally display screens based on the AsyncValue state
       home: authState.when(
         data: (user) {
-          // If data is available, check if user is null (logged out) or not (logged in)
           print("MyApp build: Auth state data - User: ${user?.username ?? 'null'}");
           return user != null ? const NavigationScreen() : const LoginScreen();
         },
         loading: () {
-          // Show loading indicator while checking initial auth state
           print("MyApp build: Auth state loading");
-          // Use a full scaffold during initial load for better appearance
           return const Scaffold(
              backgroundColor: colorBackground, // Use theme background
              body: Center(child: LoadingIndicator())
           );
         },
         error: (error, stackTrace) {
-          // Show an error message if auth state resolution fails
-          print("MyApp build: Auth state error - $error");
+          // Show a more informative error message
+          print("MyApp build: Auth state error - $error\nStack trace:\n$stackTrace");
           return Scaffold(
-            backgroundColor: colorBackground,
+            backgroundColor: colorBackground, // Use theme color
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "Error initializing app: $error",
-                  style: const TextStyle(color: colorError),
-                  textAlign: TextAlign.center,
+                child: Column( // Use column for better layout
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, color: colorError, size: 50),
+                    const SizedBox(height: 10),
+                    const Text(
+                       "Error Initializing Application",
+                       style: TextStyle(color: colorOnBackground, fontSize: 18, fontWeight: FontWeight.bold),
+                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      // Show a user-friendly message or the specific error
+                      "Could not initialize authentication state. Please check logs or restart the app.\n\nError: $error",
+                      style: const TextStyle(color: colorHint), // Use hint color for details
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),

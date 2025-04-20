@@ -28,7 +28,7 @@ class SignUpScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back, color: colorOnBackground),
+          icon: const Icon(Icons.arrow_back),
         ),
       ),
       body: Center(
@@ -39,6 +39,7 @@ class SignUpScreen extends ConsumerWidget {
               vertical: 20.0,
             ),
             child: Form(
+              key: formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -122,8 +123,15 @@ class SignUpScreen extends ConsumerWidget {
                     () => rektubeButton(
                       // Signup Button
                       () {
+                        // --- Add Debug Print ---
+                        print("Signup button pressed.");
+                        // Validate form using the key
+                        final isValid = formKey.currentState?.validate() ?? false;
+                        print("Form validation result: $isValid");
+                        // --- End Debug Print ---
+
                         // Validate form
-                        if (formKey.currentState?.validate() ?? false) {
+                        if (isValid) {
                           signUpController.signUpUser(
                             ref, // Pass ref
                             firstNameController.text,
@@ -145,7 +153,7 @@ class SignUpScreen extends ConsumerWidget {
                     children: [
                       Text(
                         "Alredy have an account? ",
-                        style: TextStyle(color: colorOnBackground),
+                        
                       ),
                       GestureDetector(
                         onTap: () {

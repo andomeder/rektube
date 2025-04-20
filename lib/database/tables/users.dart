@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:rektube/database/type_converters.dart';
 
 @DataClassName('User', extending: Table)
 
@@ -12,8 +13,10 @@ class Users extends Table {
   TextColumn get lastName => text().named('last_name')();
   TextColumn get username => text().unique()();
   TextColumn get email => text().unique()();
-  TextColumn get password => text().named('password_hash')();
+  TextColumn get passwordHash => text().named('password_hash')();
 
-  DateTimeColumn get createdAt => dateTime().named('created_at').withDefault(currentDateAndTime)();
-  DateTimeColumn get updatedAt => dateTime().named('updated_at').withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().named('created_at').map(const TimestampNoTzConverter() as TypeConverter<dynamic, DateTime>)();
+  DateTimeColumn get updatedAt => dateTime().named('updated_at').map(const TimestampNoTzConverter() as TypeConverter<dynamic, DateTime>)();
+  //TextColumn get createdAt => text().named('created_at')();
+  //TextColumn get updatedAt => text().named('updated_at')();
 }

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:rektube/database/tables/users.dart';
 import 'package:rektube/database/connection/connection.dart' as conn;
 import 'package:rektube/database/daos/user_dao.dart';
+import 'package:rektube/database/type_converters.dart';
 
 part 'database.g.dart';
 

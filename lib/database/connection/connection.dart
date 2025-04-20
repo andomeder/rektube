@@ -10,14 +10,15 @@ import 'package:drift_postgres/drift_postgres.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:postgres/postgres.dart' as pg;
 
-String _dbHost = dotenv.env['DATABASE_HOST']!;
-int _dbPort = int.parse(dotenv.env['DATABASE_PORT']!);
-String _dbName = dotenv.env['DATABASE_NAME']!;
-String _dbUsername = dotenv.env['DATABASE_USER']!;
-String _dbPassword = dotenv.env['DATABASE_PASSWORD']!;
+String _dbHost = dotenv.env['DATABASE_HOST'] ?? 'localhost';
+int _dbPort = int.tryParse(dotenv.env['DATABASE_PORT'] ?? '5432') ?? 5432;
+String _dbName = dotenv.env['DATABASE_NAME'] ?? 'rektube';
+String _dbUsername = dotenv.env['DATABASE_USER'] ?? 'postgres';
+String _dbPassword = dotenv.env['DATABASE_PASSWORD'] ?? '';
 
 
 DatabaseConnection connect() {
+  print("Attempting to connect to DB: Host=$_dbHost, Port=$_dbPort, DB=$_dbName, User=$_dbUsername");
   final pgConnection = PgDatabase(
     endpoint: pg.Endpoint(
       host: _dbHost,
@@ -27,8 +28,9 @@ DatabaseConnection connect() {
       password: _dbPassword,
   ),
   settings: const pg.ConnectionSettings(
-    sslMode: pg.SslMode.require
+    sslMode: pg.SslMode.disable
   ));
   //return DatabaseConnection(PgDatabase(endpoint: pgConnection));
+  print("PgDatabase instance created for connection.");
   return DatabaseConnection(pgConnection);
 }

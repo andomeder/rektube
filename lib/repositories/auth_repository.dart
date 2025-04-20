@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+//import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:rektube/configs/constants.dart';
 import 'package:rektube/database/daos/user_dao.dart';
@@ -9,6 +9,7 @@ import 'package:rektube/utils/exceptions.dart';
 import 'package:rektube/utils/secure_storage.dart';
 import 'package:rektube/models/user.dart' as model_user;
 import 'package:bcrypt/bcrypt.dart';
+import 'package:drift/drift.dart';
 
 class AuthRepository {
   final UserDao _userDao;
@@ -28,7 +29,7 @@ class AuthRepository {
   void dispose() {
     _authStateController.close();
   }
-  Future<model_user.AppUser?> signUp ({
+  Future<model_user.AppUser> signUp ({
     required String firstName,
     required String lastName,
     required String username,
@@ -46,7 +47,7 @@ class AuthRepository {
     }
 
     // Hash the password
-    final String passwordHash = await _hashPassword(password);
+    final String hashedPassword = await _hashPassword(password);
 
     // Create the user companion
     final userCompanion = UsersCompanion.insert(
@@ -54,7 +55,9 @@ class AuthRepository {
       lastName: lastName,
       username: username,
       email: email,
-      password: passwordHash,
+      passwordHash: hashedPassword,
+      createdAt: const Value.absent(),
+      updatedAt: const Value.absent(),
     );
 
     try {
@@ -64,7 +67,7 @@ class AuthRepository {
       // Fetch the created user to return the model
       final dbUser = await _userDao.findUserById(userId);
       if (dbUser == null) {
-        throw DatabaseException("Failed to retrieve created user.");
+        throw DatabaseException("Failed to retrieve created user after insert.");
       }
 
       // Handle successful sign up by loggin the user in
@@ -72,9 +75,9 @@ class AuthRepository {
       final appUser = model_user.AppUser.fromDbUser(dbUser);
       _authStateController.add(appUser);
       return appUser;
-    } catch (e) {
+    } catch (e, st) {
       print("Sign up Error: $e");
-
+      print("Stack trace: $st");
       // Rethrow specific exceptions if needed, otherwise a general one
       if (e is DatabaseException || e is AuthException) {
         rethrow;
@@ -82,7 +85,7 @@ class AuthRepository {
       throw DatabaseException("Failed to create user account. Please try again.");
     }
   }
-  Future<model_user.AppUser?> login ({
+  Future<model_user.AppUser> login ({
     required String usernameOrEmail,
     required String password,
   }) async {
@@ -91,7 +94,7 @@ class AuthRepository {
       throw AuthException('Invalid username/email or password.');
     }
 
-    final bool passwordMatches = await _verifyPassword(password, dbUser.password);
+    final bool passwordMatches = await _verifyPassword(password, dbUser.passwordHash);
     if (!passwordMatches) {
       throw AuthException('Invalid username/email or password.');
     }
@@ -103,7 +106,7 @@ class AuthRepository {
     return appUser;
   }
 
-  Future<model_user.AppUser?> logout() async {
+  Future<void> logout() async {
     await _secureStorage.deleteAll();
     _authStateController.add(null);
     print("User logged out and auth stream updated.");
@@ -138,9 +141,10 @@ class AuthRepository {
   }
 
   // Method to chack initial auth status (eg on app startup)
-  Future<model_user.AppUser?> _checkInitialAuthStatus() async {
+  Future<model_user.AppUser?> checkInitialAuthStatus() async {
     final userIdStr = await _secureStorage.getUserId();
     model_user.AppUser? appUser;
+    User? dbUser;
 
     if (userIdStr != null) {
       final userId = int.tryParse(userIdStr);
@@ -157,7 +161,11 @@ class AuthRepository {
       // If no valid user is found ensure storage is cleared
       await _secureStorage.deleteAll();
       print("No valid user session found in secure storage.");
-    }
+    } else {
+           // Optional: Print the string dates received from DB for debugging
+           print("Initial Auth - dbUser.createdAt (String): ${dbUser?.createdAt}");
+           print("Initial Auth - dbUser.updatedAt (String): ${dbUser?.updatedAt}");
+       }
 
     _authStateController.add(appUser);
     return appUser;

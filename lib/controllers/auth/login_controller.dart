@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:rektube/configs/colours.dart';
 import 'package:rektube/configs/constants.dart';
+import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/utils/exceptions.dart';
 import 'package:rektube/utils/helpers.dart';
 import 'package:rektube/utils/routes.dart';
@@ -43,9 +44,9 @@ class LoginController extends GetxController {
 
       // --- Login successful ---
       // Save the username to secure storage
-      await _getStorage.write(storageUsernameKey, user.username);
+      await _getStorage.write(storageUsernameKey, user!.username);
       // Update the username in the controller
-      username.value = user.username;
+      username.value = user!.username;
       // Update the UI to show the user's profile
       Get.offAndToNamed(AppRoutes.navigation);
     } on AuthException catch (e) {

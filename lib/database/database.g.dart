@@ -65,41 +65,35 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
-  static const VerificationMeta _passwordMeta = const VerificationMeta(
-    'password',
+  static const VerificationMeta _passwordHashMeta = const VerificationMeta(
+    'passwordHash',
   );
   @override
-  late final GeneratedColumn<String> password = GeneratedColumn<String>(
+  late final GeneratedColumn<String> passwordHash = GeneratedColumn<String>(
     'password_hash',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
   @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
+  late final GeneratedColumnWithTypeConverter<dynamic, DateTime> createdAt =
+      GeneratedColumn<DateTime>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<dynamic>($UsersTable.$convertercreatedAt);
   @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
+  late final GeneratedColumnWithTypeConverter<dynamic, DateTime> updatedAt =
+      GeneratedColumn<DateTime>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<dynamic>($UsersTable.$converterupdatedAt);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -107,7 +101,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     lastName,
     username,
     email,
-    password,
+    passwordHash,
     createdAt,
     updatedAt,
   ];
@@ -160,23 +154,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     }
     if (data.containsKey('password_hash')) {
       context.handle(
-        _passwordMeta,
-        password.isAcceptableOrUnknown(data['password_hash']!, _passwordMeta),
+        _passwordHashMeta,
+        passwordHash.isAcceptableOrUnknown(
+          data['password_hash']!,
+          _passwordHashMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_passwordMeta);
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
+      context.missing(_passwordHashMeta);
     }
     return context;
   }
@@ -212,21 +197,23 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
             DriftSqlType.string,
             data['${effectivePrefix}email'],
           )!,
-      password:
+      passwordHash:
           attachedDatabase.typeMapping.read(
             DriftSqlType.string,
             data['${effectivePrefix}password_hash'],
           )!,
-      createdAt:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.dateTime,
-            data['${effectivePrefix}created_at'],
-          )!,
-      updatedAt:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.dateTime,
-            data['${effectivePrefix}updated_at'],
-          )!,
+      createdAt: $UsersTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $UsersTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
     );
   }
 
@@ -234,6 +221,11 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   $UsersTable createAlias(String alias) {
     return $UsersTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<dynamic, DateTime> $convertercreatedAt =
+      const TimestampNoTzConverter() as TypeConverter<dynamic, DateTime>;
+  static TypeConverter<dynamic, DateTime> $converterupdatedAt =
+      const TimestampNoTzConverter() as TypeConverter<dynamic, DateTime>;
 }
 
 class User extends Table implements Insertable<User> {
@@ -242,18 +234,18 @@ class User extends Table implements Insertable<User> {
   final String lastName;
   final String username;
   final String email;
-  final String password;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String passwordHash;
+  final dynamic createdAt;
+  final dynamic updatedAt;
   const User({
     required this.id,
     required this.firstName,
     required this.lastName,
     required this.username,
     required this.email,
-    required this.password,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.passwordHash,
+    this.createdAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -263,9 +255,17 @@ class User extends Table implements Insertable<User> {
     map['last_name'] = Variable<String>(lastName);
     map['username'] = Variable<String>(username);
     map['email'] = Variable<String>(email);
-    map['password_hash'] = Variable<String>(password);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['password_hash'] = Variable<String>(passwordHash);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(
+        $UsersTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(
+        $UsersTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
     return map;
   }
 
@@ -276,9 +276,15 @@ class User extends Table implements Insertable<User> {
       lastName: Value(lastName),
       username: Value(username),
       email: Value(email),
-      password: Value(password),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
+      passwordHash: Value(passwordHash),
+      createdAt:
+          createdAt == null && nullToAbsent
+              ? const Value.absent()
+              : Value(createdAt),
+      updatedAt:
+          updatedAt == null && nullToAbsent
+              ? const Value.absent()
+              : Value(updatedAt),
     );
   }
 
@@ -293,9 +299,9 @@ class User extends Table implements Insertable<User> {
       lastName: serializer.fromJson<String>(json['lastName']),
       username: serializer.fromJson<String>(json['username']),
       email: serializer.fromJson<String>(json['email']),
-      password: serializer.fromJson<String>(json['password']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      passwordHash: serializer.fromJson<String>(json['passwordHash']),
+      createdAt: serializer.fromJson<dynamic>(json['createdAt']),
+      updatedAt: serializer.fromJson<dynamic>(json['updatedAt']),
     );
   }
   @override
@@ -307,9 +313,9 @@ class User extends Table implements Insertable<User> {
       'lastName': serializer.toJson<String>(lastName),
       'username': serializer.toJson<String>(username),
       'email': serializer.toJson<String>(email),
-      'password': serializer.toJson<String>(password),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'passwordHash': serializer.toJson<String>(passwordHash),
+      'createdAt': serializer.toJson<dynamic>(createdAt),
+      'updatedAt': serializer.toJson<dynamic>(updatedAt),
     };
   }
 
@@ -319,18 +325,18 @@ class User extends Table implements Insertable<User> {
     String? lastName,
     String? username,
     String? email,
-    String? password,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    String? passwordHash,
+    Value<dynamic> createdAt = const Value.absent(),
+    Value<dynamic> updatedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     firstName: firstName ?? this.firstName,
     lastName: lastName ?? this.lastName,
     username: username ?? this.username,
     email: email ?? this.email,
-    password: password ?? this.password,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
+    passwordHash: passwordHash ?? this.passwordHash,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -339,7 +345,10 @@ class User extends Table implements Insertable<User> {
       lastName: data.lastName.present ? data.lastName.value : this.lastName,
       username: data.username.present ? data.username.value : this.username,
       email: data.email.present ? data.email.value : this.email,
-      password: data.password.present ? data.password.value : this.password,
+      passwordHash:
+          data.passwordHash.present
+              ? data.passwordHash.value
+              : this.passwordHash,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -353,7 +362,7 @@ class User extends Table implements Insertable<User> {
           ..write('lastName: $lastName, ')
           ..write('username: $username, ')
           ..write('email: $email, ')
-          ..write('password: $password, ')
+          ..write('passwordHash: $passwordHash, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -367,7 +376,7 @@ class User extends Table implements Insertable<User> {
     lastName,
     username,
     email,
-    password,
+    passwordHash,
     createdAt,
     updatedAt,
   );
@@ -380,7 +389,7 @@ class User extends Table implements Insertable<User> {
           other.lastName == this.lastName &&
           other.username == this.username &&
           other.email == this.email &&
-          other.password == this.password &&
+          other.passwordHash == this.passwordHash &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -391,16 +400,16 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> lastName;
   final Value<String> username;
   final Value<String> email;
-  final Value<String> password;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
+  final Value<String> passwordHash;
+  final Value<dynamic> createdAt;
+  final Value<dynamic> updatedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.firstName = const Value.absent(),
     this.lastName = const Value.absent(),
     this.username = const Value.absent(),
     this.email = const Value.absent(),
-    this.password = const Value.absent(),
+    this.passwordHash = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -410,21 +419,23 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String lastName,
     required String username,
     required String email,
-    required String password,
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    required String passwordHash,
+    required dynamic createdAt,
+    required dynamic updatedAt,
   }) : firstName = Value(firstName),
        lastName = Value(lastName),
        username = Value(username),
        email = Value(email),
-       password = Value(password);
+       passwordHash = Value(passwordHash),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? firstName,
     Expression<String>? lastName,
     Expression<String>? username,
     Expression<String>? email,
-    Expression<String>? password,
+    Expression<String>? passwordHash,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -434,7 +445,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (lastName != null) 'last_name': lastName,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
-      if (password != null) 'password_hash': password,
+      if (passwordHash != null) 'password_hash': passwordHash,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -446,9 +457,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String>? lastName,
     Value<String>? username,
     Value<String>? email,
-    Value<String>? password,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
+    Value<String>? passwordHash,
+    Value<dynamic>? createdAt,
+    Value<dynamic>? updatedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -456,7 +467,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       lastName: lastName ?? this.lastName,
       username: username ?? this.username,
       email: email ?? this.email,
-      password: password ?? this.password,
+      passwordHash: passwordHash ?? this.passwordHash,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -480,14 +491,18 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (email.present) {
       map['email'] = Variable<String>(email.value);
     }
-    if (password.present) {
-      map['password_hash'] = Variable<String>(password.value);
+    if (passwordHash.present) {
+      map['password_hash'] = Variable<String>(passwordHash.value);
     }
     if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
+      map['created_at'] = Variable<DateTime>(
+        $UsersTable.$convertercreatedAt.toSql(createdAt.value),
+      );
     }
     if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+      map['updated_at'] = Variable<DateTime>(
+        $UsersTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
     }
     return map;
   }
@@ -500,7 +515,7 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('lastName: $lastName, ')
           ..write('username: $username, ')
           ..write('email: $email, ')
-          ..write('password: $password, ')
+          ..write('passwordHash: $passwordHash, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -527,9 +542,9 @@ typedef $$UsersTableCreateCompanionBuilder =
       required String lastName,
       required String username,
       required String email,
-      required String password,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
+      required String passwordHash,
+      required dynamic createdAt,
+      required dynamic updatedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -538,9 +553,9 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String> lastName,
       Value<String> username,
       Value<String> email,
-      Value<String> password,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
+      Value<String> passwordHash,
+      Value<dynamic> createdAt,
+      Value<dynamic> updatedAt,
     });
 
 class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
@@ -576,20 +591,22 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get password => $composableBuilder(
-    column: $table.password,
+  ColumnFilters<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<dynamic, dynamic, DateTime> get createdAt =>
+      $composableBuilder(
+        column: $table.createdAt,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<dynamic, dynamic, DateTime> get updatedAt =>
+      $composableBuilder(
+        column: $table.updatedAt,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 }
 
 class $$UsersTableOrderingComposer
@@ -626,8 +643,8 @@ class $$UsersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get password => $composableBuilder(
-    column: $table.password,
+  ColumnOrderings<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -666,13 +683,15 @@ class $$UsersTableAnnotationComposer
   GeneratedColumn<String> get email =>
       $composableBuilder(column: $table.email, builder: (column) => column);
 
-  GeneratedColumn<String> get password =>
-      $composableBuilder(column: $table.password, builder: (column) => column);
+  GeneratedColumn<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<DateTime> get createdAt =>
+  GeneratedColumnWithTypeConverter<dynamic, DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get updatedAt =>
+  GeneratedColumnWithTypeConverter<dynamic, DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
@@ -709,16 +728,16 @@ class $$UsersTableTableManager
                 Value<String> lastName = const Value.absent(),
                 Value<String> username = const Value.absent(),
                 Value<String> email = const Value.absent(),
-                Value<String> password = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> passwordHash = const Value.absent(),
+                Value<dynamic> createdAt = const Value.absent(),
+                Value<dynamic> updatedAt = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 firstName: firstName,
                 lastName: lastName,
                 username: username,
                 email: email,
-                password: password,
+                passwordHash: passwordHash,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -729,16 +748,16 @@ class $$UsersTableTableManager
                 required String lastName,
                 required String username,
                 required String email,
-                required String password,
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
+                required String passwordHash,
+                required dynamic createdAt,
+                required dynamic updatedAt,
               }) => UsersCompanion.insert(
                 id: id,
                 firstName: firstName,
                 lastName: lastName,
                 username: username,
                 email: email,
-                password: password,
+                passwordHash: passwordHash,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

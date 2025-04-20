@@ -78,6 +78,7 @@ dev_dependencies:
   build_runner: ^2.4.15
   riverpod_generator: ^2.6.5
   drift_dev: ^2.26.0
+  intl: ^0.20.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
