@@ -10,6 +10,7 @@ import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/views/screens/auth/login_screen.dart';
 import 'package:rektube/utils/routes.dart';
 import 'package:rektube/views/screens/core/navigation_screen.dart';
+import 'package:rektube/views/widgets/common/loading_indicator.dart';
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
