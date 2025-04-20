@@ -5,7 +5,7 @@ import 'package:rektube/controllers/auth/signup_controller.dart';
 import 'package:rektube/utils/routes.dart';
 import 'package:rektube/views/widgets/common/password_field.dart';
 import 'package:rektube/views/widgets/rektube_button.dart';
-import 'package:rektube/views/widgets/text_field.dart';
+import 'package:rektube/views/widgets/common/text_field.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
