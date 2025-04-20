@@ -1,91 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:rektube/configs/colours.dart';
 import 'package:rektube/controllers/auth/login_controller.dart';
 import 'package:rektube/utils/routes.dart';
+import 'package:rektube/utils/validators.dart';
 import 'package:rektube/views/widgets/common/password_field.dart';
-import 'package:rektube/views/widgets/rektube_button.dart';
+import 'package:rektube/views/widgets/common/rektube_button.dart';
 import 'package:rektube/views/widgets/common/text_field.dart';
 
 var store = GetStorage();
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final LoginController loginController = Get.put(LoginController());
-    String username = store.read("username") ?? "";
+    //String username = store.read("username") ?? "";
     //String password = store.read("password") ?? "";
-    TextEditingController userNameController = TextEditingController();
+
+    // Using container state for prefill
+    TextEditingController userNameController = TextEditingController(
+      text: loginController.username.value,
+    );
     TextEditingController passwordController = TextEditingController();
-    userNameController.text = username;
+    final formKey = GlobalKey<FormState>();
+    //userNameController.text = username;
     return Scaffold(
-      backgroundColor: colorBackground,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 30, 10, 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Image.asset('assets/images/logo-no-background.png', height: 100, width: 100,),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    "Login",
-                    style: TextStyle(
-                      color: colorPrimary,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 40.0,
+            ),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0),
+                    child: Image.asset(
+                      'assets/images/logo-no-background.png',
+                      height: 100,
                     ),
                   ),
-                ),
-                myTextField(
-                  hintText: "Enter Username",
-                  controller: userNameController,
-                ),
-                SizedBox(height: 10),
-                PasswordField(
-                  hintText: "Enter Password",
-                  controller: passwordController,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: rektubeButton(
-                    () async {
-                      bool isValid = loginController.validateLogin(
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 30.0),
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                        color: colorPrimary,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  myTextField(
+                    hintText: "Username or Email",
+                    controller: userNameController,
+                    prefixIcon: Icons.alternate_email,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) => Validators.validateNotEmpty(value, 'Username or Email'),
+                  ),
+                  const SizedBox(height: 15),
+                  PasswordField(
+                    hintText: "Password",
+                    controller: passwordController,
+                    validator: Validators.validatePassword,
+                  ),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(onPressed: () {
+                      print("Forgot Password tapped");
+                      Get.snackbar(
+                        "Info",
+                        "Forgot Password functionality is not available yet",
+                      );
+                    }, child: Text("Forgot Password?")),
+                  ),
+                  const SizedBox(height: 25),
+                  Obx(() => rektubeButton(() {
+                    if (formKey.currentState?.validate() ?? false) {
+                      loginController.loginUser(
+                        ref,
                         userNameController.text.trim(),
                         passwordController.text.trim(),
-                      );
-
-                      if (isValid) {
-                        loginController.showSuccessSnackbar(
-                          "Welcome ${userNameController.text.trim()}",
-                          "Welcome to Rektube",
-                        );
-                        Get.offAndToNamed(AppRoutes.navigation);
-                      }
-                    },
-                    label: "Login",
-                    color: colorPrimary,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
+                      );}
+                  }, label: "Login", isLoading: loginController.isLoading.value)),
+                  const SizedBox(height: 30),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Don't have an account? ",
                         style: TextStyle(
-                          color: colorOnPrimary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          color: colorOnBackground,
                         ),
                       ),
                       GestureDetector(
@@ -100,40 +114,13 @@ class LoginScreen extends StatelessWidget {
                             decoration: TextDecoration.underline,
                             decorationColor: colorPrimary,
                             decorationThickness: 2,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      child: Text("Forgot Password?",
-                          style: TextStyle(
-                            color: colorOnPrimary,
-                            decoration: TextDecoration.underline,
-                            decorationColor: colorPrimary,
-                            decorationThickness: 2,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          )),
-                      onTap: () {
-                        print("Forgot Password tapped");
-                        Get.snackbar("Info", "Forgot Password functionality is not available yet", 
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.amber,
-                        colorText: colorOnPrimary
-                        );
-                      }
-                    )
-                  ],
-                )
-              ],
+                ],
+              ),
             ),
           ),
         ),
