@@ -47,4 +47,4 @@ app.*.map.json
 
 .env
 *.sql
-
+draft.txt
