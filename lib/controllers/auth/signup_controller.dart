@@ -1,4 +1,3 @@
-// lib/controllers/auth/signup_controller.dart
 import 'package:get/get.dart';
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/repositories/auth_repository.dart'; // AuthRepository is needed
