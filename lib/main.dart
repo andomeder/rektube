@@ -8,7 +8,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   runApp(GetMaterialApp(
-    home: Login(),
+    home: LoginScreen(),
     getPages: AppRoutes.routes,
     initialRoute: '/',
     debugShowCheckedModeBanner: false,
