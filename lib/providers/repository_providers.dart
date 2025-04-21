@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rektube/providers/database_providers.dart';
 import 'package:rektube/repositories/auth_repository.dart';
+import 'package:rektube/repositories/piped_repository.dart';
 import 'package:rektube/utils/secure_storage.dart';
 
 final secureStorageProvider = Provider<SecureStorageService>((ref) {
@@ -15,4 +16,9 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final userDao = ref.watch(userDaoProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   return AuthRepository(userDao, secureStorage);
+});
+
+// Provider for PipedRepository
+final pipedRepositoryProvider = Provider<PipedRepository>((ref) {
+  return PipedRepository();
 });
