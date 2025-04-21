@@ -1,4 +1,4 @@
-const String pipedInstanceUrl = 'https://piapi.ggtyler.dev';
+const String pipedInstanceUrl = 'http://localhost:3142';
 
 // Secure storage keys
 const String secureStorageAuthTokenKey = 'authToken';

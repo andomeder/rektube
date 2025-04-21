@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:rektube/configs/colours.dart';
+import 'package:rektube/controllers/player/player_controller.dart';
 import 'package:rektube/models/track.dart';
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
@@ -142,7 +143,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       onTap: () {
                         // TODO: Implement Playback (Phase 5)
                         print("Tapped on track: ${track.title}");
-                        Get.snackbar("Info", "Playback not implemented yet.");
+                        final playerController = Get.find<PlayerController>();
+                        playerController.play(track, ref);
+                        Get.snackbar("Playback", "Playing ${track.title}");
                       },
                     );
                   },

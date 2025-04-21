@@ -60,27 +60,88 @@ class PlayerRepository {
 
       try {
         final pipedRepo = _ref.read(pipedRepositoryProvider);
-        final streamInfo = await pipedRepo.getStreamInfo(track.id);
+        final streamInfoJson = await pipedRepo.getStreamInfoJson(track.id);
 
         // Find a suitable audio stream (e.g., highest quality m4a)
-        final audioStream = streamInfo.audioStreams ?.where((s) => s.mimeType == 'audio/mp4' || s.mimeType == 'audio/webm').cast<PipedAudioStream>().lastOrNull;
-        if (audioStream == null || audioStream.url == null) {
-          throw Exception("No suitable audio stream found for track '${track.title}'");
+        //final audioStream = streamInfo.audioStreams ?.where((s) => s.mimeType == 'audio/mp4' || s.mimeType == 'audio/webm').cast<PipedAudioStream>().lastOrNull;
+        //if (audioStream == null || audioStream.url == null) {
+          //throw Exception("No suitable audio stream found for track '${track.title}'");
+        //}
+
+        // *** Parse the JSON response manually (or create a model class) ***
+          final audioStreamsData = streamInfoJson['audioStreams'] as List<dynamic>?;
+
+          if (audioStreamsData == null || audioStreamsData.isEmpty) {
+             throw PipedException("No audio streams found in JSON response for ${track.title}");
+          }
+
+          // Find the best stream based on your criteria (e.g., m4a, highest bitrate)
+          Map<String, dynamic>? bestStream;
+          int highestBitrate = -1;
+
+          for (var streamData in audioStreamsData) {
+             if (streamData is Map<String, dynamic>) {
+                 final mimeType = streamData['mimeType'] as String?;
+                 final bitrate = streamData['bitrate'] as int?; // Bitrate might be missing or 0
+
+                 // Prioritize m4a/mp4, then webm
+                 if ((mimeType == 'audio/mp4' || mimeType == 'audio/m4a')) {
+                    // Example: Choose highest bitrate m4a
+                    if (bitrate != null && bitrate > highestBitrate) {
+                       highestBitrate = bitrate;
+                       bestStream = streamData;
+                    } else if (bestStream == null || (bestStream['mimeType'] != 'audio/mp4' && bestStream['mimeType'] != 'audio/m4a')) {
+                         // If no higher bitrate found, take the first m4a
+                         bestStream ??= streamData;
+                    }
+                 } else if (mimeType == 'audio/webm' && bestStream == null) {
+                    // Fallback to webm if no m4a found yet
+                    bestStream ??= streamData;
+                 }
+             }
+          }
+
+        //print("PlayerRepository: Found audio stream URL: ${audioStream.url}");
+
+        //// Create Media object and open in player
+        //final media = media_kit.Media(audioStream.url);
+        //await _player.open(media, play: true);
+        //print("PlayerRepository: Opened media in player for ${track.title}");
+
+        var streamUrl = bestStream?['url'] as String?;
+
+        if (streamUrl == null) {
+            print("PlayerRepository: Suitable stream could not be extracted from JSON: $audioStreamsData");
+            throw PipedException("Could not extract a suitable audio stream URL for ${track.title}");
         }
 
-        print("PlayerRepository: Found audio stream URL: ${audioStream.url}");
+        print("PlayerRepository: Original stream URL from API: $streamUrl");
 
-        // Create Media object and open in player
-        final media = media_kit.Media(audioStream.url);
+        try {
+          final uri = Uri.parse(streamUrl);
+          if (uri.host == 'pipedproxy.rektube') {
+            streamUrl = uri.replace(scheme: 'http', host: '127.0.0.1', port: 3142).toString();
+            print("PlayerRepostory: Rewritten stream URL for local dev: $streamUrl");
+          } 
+        } catch (e) {
+          print("PlayerRepository: Error parsing or rewritting stream URL: $e");
+          throw PlayerException("Invalid stream URL format received from Piped API: ${e.toString()}");
+        }
+
+        
+
+        print("PlayerRepository: Final URL passed to player: $streamUrl");
+        final media = media_kit.Media(streamUrl);
         await _player.open(media, play: true);
         print("PlayerRepository: Opened media in player for ${track.title}");
+
       } catch (e, stackTrace) {
         print("PlayerRepository: Error playing track ${track.title}: $e\n$stackTrace");
         _currentTrack = null; // Clear track on error
         _currentTrackController.add(null);
 
         // Rethrow or handle specific exceptions
-        if (e is PipedException || e is NetworkException) rethrow;
+        if (e is PipedException || e is NetworkException || e is PlayerException) rethrow;
         throw PlayerException("Failed to play track: ${e.toString()}");
       }
     }

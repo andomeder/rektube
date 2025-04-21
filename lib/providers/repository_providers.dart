@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rektube/providers/database_providers.dart';
 import 'package:rektube/repositories/auth_repository.dart';
 import 'package:rektube/repositories/piped_repository.dart';
+import 'package:rektube/repositories/player_repository.dart';
 import 'package:rektube/utils/secure_storage.dart';
 
 final secureStorageProvider = Provider<SecureStorageService>((ref) {
@@ -21,4 +22,11 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 // Provider for PipedRepository
 final pipedRepositoryProvider = Provider<PipedRepository>((ref) {
   return PipedRepository();
+});
+
+// Provider for PlayerRepository
+final playerRepositoryProvider = Provider<PlayerRepository>((ref) {
+  final repository = PlayerRepository(ref);
+  ref.onDispose(() => repository.dispose());
+  return repository;
 });
