@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:rektube/configs/colours.dart';
+import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/utils/routes.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: colorBackground,
       appBar: AppBar(
-        title: Text("Rektube", style: TextStyle(color: colorOnPrimary),),
-        backgroundColor: colorBackground,
+        title: Text("Rektube"),
         automaticallyImplyLeading: false,
         actions: [
+          IconButton(
+            tooltip: "Account Settings",
+            onPressed: () {
+              // TODO: Implement Settings Popup Menu (Phase 7)
+              Get.snackbar("Info", "Settings menu not implemented yet.");
+            },
+            icon: const Icon(Icons.account_circle_rounded),
+          ),
           IconButton(
             icon: Icon(Icons.logout_rounded),
             onPressed: () async {
               print("Logout tapped");
-              Get.offAndToNamed(AppRoutes.login);
+              //Get.offAndToNamed(AppRoutes.login);
+              await ref.read(authControllerProvider.notifier).manualLogout();
             },
-          )
+          ),
         ],
       ),
       body: Center(
