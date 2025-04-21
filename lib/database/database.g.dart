@@ -568,7 +568,8 @@ class $PlaylistsTable extends Playlists
         aliasedName,
         false,
         type: PgTypes.timestampWithTimezone,
-        requiredDuringInsert: true,
+        requiredDuringInsert: false,
+        clientDefault: () => PgDateTime(DateTime.now().toUtc()),
       ).withConverter<DateTime>($PlaylistsTable.$convertercreatedAt);
   static const VerificationMeta _thumbnailMeta = const VerificationMeta(
     'thumbnail',
@@ -806,11 +807,10 @@ class PlaylistsCompanion extends UpdateCompanion<Playlist> {
     this.id = const Value.absent(),
     required String name,
     required int userId,
-    required DateTime createdAt,
+    this.createdAt = const Value.absent(),
     this.thumbnail = const Value.absent(),
   }) : name = Value(name),
-       userId = Value(userId),
-       createdAt = Value(createdAt);
+       userId = Value(userId);
   static Insertable<Playlist> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -975,7 +975,8 @@ class $PlaylistItemsTable extends PlaylistItems
         aliasedName,
         false,
         type: PgTypes.timestampWithTimezone,
-        requiredDuringInsert: true,
+        requiredDuringInsert: false,
+        clientDefault: () => PgDateTime(DateTime.now().toUtc()),
       ).withConverter<DateTime>($PlaylistItemsTable.$converteraddedAt);
   @override
   List<GeneratedColumn> get $columns => [
@@ -1326,12 +1327,11 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
     required String trackArtist,
     this.trackThumbnailUrl = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
-    required DateTime addedAt,
+    this.addedAt = const Value.absent(),
   }) : playlistId = Value(playlistId),
        trackId = Value(trackId),
        trackTitle = Value(trackTitle),
-       trackArtist = Value(trackArtist),
-       addedAt = Value(addedAt);
+       trackArtist = Value(trackArtist);
   static Insertable<PlaylistItem> custom({
     Expression<int>? id,
     Expression<int>? playlistId,
@@ -1519,7 +1519,8 @@ class $LikedSongsTable extends LikedSongs
         aliasedName,
         false,
         type: PgTypes.timestampWithTimezone,
-        requiredDuringInsert: true,
+        requiredDuringInsert: false,
+        clientDefault: () => PgDateTime(DateTime.now().toUtc()),
       ).withConverter<DateTime>($LikedSongsTable.$converterlikedAt);
   @override
   List<GeneratedColumn> get $columns => [
@@ -1869,12 +1870,11 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
     required String trackArtist,
     this.trackThumbnailUrl = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
-    required DateTime likedAt,
+    this.likedAt = const Value.absent(),
   }) : userId = Value(userId),
        trackId = Value(trackId),
        trackTitle = Value(trackTitle),
-       trackArtist = Value(trackArtist),
-       likedAt = Value(likedAt);
+       trackArtist = Value(trackArtist);
   static Insertable<LikedSong> custom({
     Expression<int>? id,
     Expression<int>? userId,
@@ -2062,7 +2062,8 @@ class $HistoryTable extends History
         aliasedName,
         false,
         type: PgTypes.timestampWithTimezone,
-        requiredDuringInsert: true,
+        requiredDuringInsert: false,
+        clientDefault: () => PgDateTime(DateTime.now().toUtc()),
       ).withConverter<DateTime>($HistoryTable.$converterplayedAt);
   @override
   List<GeneratedColumn> get $columns => [
@@ -2412,12 +2413,11 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
     required String trackArtist,
     this.trackThumbnailUrl = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
-    required DateTime playedAt,
+    this.playedAt = const Value.absent(),
   }) : userId = Value(userId),
        trackId = Value(trackId),
        trackTitle = Value(trackTitle),
-       trackArtist = Value(trackArtist),
-       playedAt = Value(playedAt);
+       trackArtist = Value(trackArtist);
   static Insertable<HistoryEntry> custom({
     Expression<int>? id,
     Expression<int>? userId,
@@ -3083,7 +3083,7 @@ typedef $$PlaylistsTableCreateCompanionBuilder =
       Value<int> id,
       required String name,
       required int userId,
-      required DateTime createdAt,
+      Value<DateTime> createdAt,
       Value<String?> thumbnail,
     });
 typedef $$PlaylistsTableUpdateCompanionBuilder =
@@ -3386,7 +3386,7 @@ class $$PlaylistsTableTableManager
                 Value<int> id = const Value.absent(),
                 required String name,
                 required int userId,
-                required DateTime createdAt,
+                Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> thumbnail = const Value.absent(),
               }) => PlaylistsCompanion.insert(
                 id: id,
@@ -3496,7 +3496,7 @@ typedef $$PlaylistItemsTableCreateCompanionBuilder =
       required String trackArtist,
       Value<String?> trackThumbnailUrl,
       Value<int?> trackDurationSeconds,
-      required DateTime addedAt,
+      Value<DateTime> addedAt,
     });
 typedef $$PlaylistItemsTableUpdateCompanionBuilder =
     PlaylistItemsCompanion Function({
@@ -3796,7 +3796,7 @@ class $$PlaylistItemsTableTableManager
                 required String trackArtist,
                 Value<String?> trackThumbnailUrl = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
-                required DateTime addedAt,
+                Value<DateTime> addedAt = const Value.absent(),
               }) => PlaylistItemsCompanion.insert(
                 id: id,
                 playlistId: playlistId,
@@ -3885,7 +3885,7 @@ typedef $$LikedSongsTableCreateCompanionBuilder =
       required String trackArtist,
       Value<String?> trackThumbnailUrl,
       Value<int?> trackDurationSeconds,
-      required DateTime likedAt,
+      Value<DateTime> likedAt,
     });
 typedef $$LikedSongsTableUpdateCompanionBuilder =
     LikedSongsCompanion Function({
@@ -4176,7 +4176,7 @@ class $$LikedSongsTableTableManager
                 required String trackArtist,
                 Value<String?> trackThumbnailUrl = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
-                required DateTime likedAt,
+                Value<DateTime> likedAt = const Value.absent(),
               }) => LikedSongsCompanion.insert(
                 id: id,
                 userId: userId,
@@ -4263,7 +4263,7 @@ typedef $$HistoryTableCreateCompanionBuilder =
       required String trackArtist,
       Value<String?> trackThumbnailUrl,
       Value<int?> trackDurationSeconds,
-      required DateTime playedAt,
+      Value<DateTime> playedAt,
     });
 typedef $$HistoryTableUpdateCompanionBuilder =
     HistoryCompanion Function({
@@ -4554,7 +4554,7 @@ class $$HistoryTableTableManager
                 required String trackArtist,
                 Value<String?> trackThumbnailUrl = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
-                required DateTime playedAt,
+                Value<DateTime> playedAt = const Value.absent(),
               }) => HistoryCompanion.insert(
                 id: id,
                 userId: userId,

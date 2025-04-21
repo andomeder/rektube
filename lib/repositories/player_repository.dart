@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart' as media_kit;
 import 'package:piped_client/piped_client.dart';
+import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/models/track.dart';
 import 'package:rektube/utils/exceptions.dart';
@@ -128,7 +129,20 @@ class PlayerRepository {
         final media = media_kit.Media(playableStreamUrl); // Use rewritten URL
         await _player.open(media, play: true);
         print("PlayerRepository: Opened media in player for ${track.title}");
-
+        // *** Log Playback to History ***
+        try {
+          final authState = _ref.read(authControllerProvider); // Get current auth state
+          final userId = authState.valueOrNull?.id;
+          if (userId != null && _currentTrack != null) { // Ensure user logged in and track set
+            final libraryRepo = _ref.read(libraryRepositoryProvider);
+            // Run logging in background, don't wait for it
+            libraryRepo.logPlayback(userId, _currentTrack!);
+            print("PlayerRepository: Logged playback for track ID ${_currentTrack!.id}");
+          }
+        } catch (e) {
+          // Log error but don't let it stop playback flow
+          print("PlayerRepository: Failed to log playback - $e");
+        }
 
       } catch (e, stackTrace) {
         print("PlayerRepository: Error playing track ${track.title}: $e\n$stackTrace");

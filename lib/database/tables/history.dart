@@ -24,6 +24,7 @@ class History extends Table {
   Column<PgDateTime> get playedAt =>
     customType(PgTypes.timestampWithTimezone)
       .named('played_at')
+      .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
       .map(const PostgreSQLTimestampConverter())();
 
    // Optional: Consider adding a constraint or logic to limit history size or

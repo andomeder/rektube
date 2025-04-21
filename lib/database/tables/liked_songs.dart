@@ -21,6 +21,7 @@ class LikedSongs extends Table {
 
   Column<PgDateTime> get likedAt => customType(PgTypes.timestampWithTimezone)
      .named('liked_at')
+     .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
      .map(const PostgreSQLTimestampConverter())();
 
   // Add a unique constraint to prevent liking the same song multiple times per user

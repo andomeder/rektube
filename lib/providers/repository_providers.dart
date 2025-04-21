@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rektube/providers/database_providers.dart';
 import 'package:rektube/repositories/auth_repository.dart';
+import 'package:rektube/repositories/library_repository.dart';
 import 'package:rektube/repositories/piped_repository.dart';
 import 'package:rektube/repositories/player_repository.dart';
 import 'package:rektube/utils/secure_storage.dart';
@@ -29,4 +30,10 @@ final playerRepositoryProvider = Provider<PlayerRepository>((ref) {
   final repository = PlayerRepository(ref);
   ref.onDispose(() => repository.dispose());
   return repository;
+});
+
+// --- Add Provider for LibraryRepository ---
+final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
+  // LibraryRepository depends on Ref to get DAOs
+  return LibraryRepository(ref);
 });

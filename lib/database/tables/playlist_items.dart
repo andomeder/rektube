@@ -22,6 +22,7 @@ class PlaylistItems extends Table {
 
   Column<PgDateTime> get addedAt => customType(PgTypes.timestampWithTimezone)
       .named('added_at')
+      .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
       .map(const PostgreSQLTimestampConverter())();
 
   // Optional: Add an order column if you want user-defined playlist order

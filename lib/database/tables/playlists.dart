@@ -15,6 +15,7 @@ class Playlists extends Table {
   // Created at
   Column<PgDateTime> get createdAt => customType(PgTypes.timestampWithTimezone)
      .named('created_at')
+     .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
      .map(const PostgreSQLTimestampConverter())();
   // thumbnail
   TextColumn get thumbnail => text().nullable()();
