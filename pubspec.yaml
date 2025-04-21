@@ -43,6 +43,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   piped_client: ^0.1.2
   media_kit: ^1.2.0
+  media_kit_libs_audio: ^1.0.5 
   hooks_riverpod: ^2.6.1
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1

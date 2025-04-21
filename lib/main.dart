@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:rektube/configs/colours.dart';
 import 'package:rektube/configs/themes.dart';
 import 'package:rektube/controllers/auth/auth_controller.dart';
@@ -26,6 +27,7 @@ import 'package:rektube/views/widgets/common/loading_indicator.dart';
 void main() async {
   // --- Start Initialization ---
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
 
   // Load environment variables FIRST
   try {
