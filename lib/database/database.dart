@@ -1,5 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:drift_postgres/drift_postgres.dart';
+import 'package:rektube/database/tables/history.dart';
+import 'package:rektube/database/tables/liked_songs.dart';
+import 'package:rektube/database/tables/playlist_items.dart';
+import 'package:rektube/database/tables/playlists.dart';
 import 'package:rektube/database/tables/users.dart';
 import 'package:rektube/database/connection/connection.dart' as conn;
 import 'package:rektube/database/daos/user_dao.dart';
@@ -7,7 +11,22 @@ import 'package:rektube/database/type_converters.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Users], daos: [UserDao])
+@DriftDatabase(
+  tables: [
+    Users,
+    Playlists, // Add new tables
+    PlaylistItems,
+    LikedSongs,
+    History,
+  ],
+  daos: [
+    UserDao,
+    PlaylistDao, // Add new DAOs
+    PlaylistItemDao,
+    LikedSongDao,
+    HistoryDao,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(QueryExecutor e) : super(e);
 
