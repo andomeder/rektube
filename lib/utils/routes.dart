@@ -5,6 +5,7 @@ import 'package:rektube/views/screens/core/dashboard_screen.dart';
 import 'package:rektube/views/screens/core/explore_screen.dart';
 import 'package:rektube/views/screens/core/library_screen.dart';
 import 'package:rektube/views/screens/core/navigation_screen.dart';
+import 'package:rektube/views/screens/player/player_screen.dart';
 
 class AppRoutes {
   static const String login = "/login";
@@ -13,6 +14,7 @@ class AppRoutes {
   static const String dashboard = "/dashboard";
   static const String explore = "/explore";
   static const String library = "/library";
+  static const String player = "/player";
 
   static const String initial = login;
 
@@ -25,5 +27,6 @@ class AppRoutes {
     GetPage(name: dashboard, page: () => const DashboardScreen()),
     GetPage(name: explore, page: () => const ExploreScreen()),
     GetPage(name: library, page: () => const LibraryScreen()),
+    GetPage(name: player, page: () => const PlayerScreen()),
   ];
 }

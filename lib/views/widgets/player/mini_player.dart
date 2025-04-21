@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rektube/controllers/player/player_controller.dart';
 import 'package:rektube/models/track.dart';
+import 'package:rektube/utils/routes.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -37,8 +38,7 @@ class MiniPlayer extends StatelessWidget {
         onTap: () {
           // TODO: Navigate to full player screen (Player Screen)
           print("MiniPlayer tapped - Navigate to full screen");
-          // Get.toNamed(AppRoutes.player); // Example navigation
-          Get.snackbar("Info", "Full player screen not implemented yet.");
+         Get.toNamed(AppRoutes.player);
         },
         child: Container(
           height: 65,
