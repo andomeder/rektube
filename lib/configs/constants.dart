@@ -1,4 +1,4 @@
-const String pipedInstanceUrl = 'https://pipedapi.kavin.rocks';
+const String pipedInstanceUrl = 'https://piapi.ggtyler.dev';
 
 // Secure storage keys
 const String secureStorageAuthTokenKey = 'authToken';

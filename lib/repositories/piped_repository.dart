@@ -23,13 +23,12 @@ class PipedRepository {
 
       for (final item in searchResults.items) {
         // Only process stream items that have necessary info
-        if (item.type == PipedSearchItemStream) {
+        if (item is PipedSearchItemStream) {
           try {
             tracks.add(Track.fromPipedSearchItem(item));
           } catch (e) {
-            final streamItem = item as PipedSearchItemStream;
             print(
-              "PipedRepository: Error converting SearchItem to Track: $e (Item: ${streamItem.title})",
+              "PipedRepository: Error converting SearchItem to Track: $e (Item: ${item.title})",
             );
           }
         }
