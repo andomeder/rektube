@@ -1,28 +1,33 @@
 import 'package:equatable/equatable.dart';
 import 'package:piped_client/piped_client.dart';
+import 'package:rektube/utils/helpers.dart';
 
 class Track extends Equatable {
   final String id;
   final String title;
   final String artist;
-  final String? thumbnailUrl;
+  final String? _originalThumbnailUrl;
   final Duration? duration;
-  final String? url;
+  final String? _originalUrl;
 
   const Track({
     required this.id,
     required this.title,
     required this.artist,
-    this.thumbnailUrl,
+    String?thumbnailUrl,
     this.duration,
-    this.url,
-  });
+    String? url,
+  }): _originalThumbnailUrl = thumbnailUrl,
+        _originalUrl = url;
+
+  String get thumbnailUrl => rewritePipedUrlForLocalDev(_originalThumbnailUrl);
+  String get url => rewritePipedUrlForLocalDev(_originalUrl);
 
   factory Track.fromJson(Map<String, dynamic> json) {
     final rawUrl = json['url'] as String;
 
     final uri = Uri.parse(rawUrl);
-    final videoId = uri.queryParameters['v'] ?? json['id'] as String;
+    final videoId = uri.queryParameters['v'] ?? json['id'] as String? ?? 'unknown_id_${DateTime.now().millisecondsSinceEpoch}';
 
     return Track(
       id: videoId,

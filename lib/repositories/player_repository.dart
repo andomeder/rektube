@@ -6,6 +6,7 @@ import 'package:piped_client/piped_client.dart';
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/models/track.dart';
 import 'package:rektube/utils/exceptions.dart';
+import 'package:rektube/utils/helpers.dart';
 
 class PlayerRepository {
   final Ref _ref;
@@ -108,32 +109,26 @@ class PlayerRepository {
         //await _player.open(media, play: true);
         //print("PlayerRepository: Opened media in player for ${track.title}");
 
-        var streamUrl = bestStream?['url'] as String?;
+        final originalStreamUrl = bestStream?['url'] as String?; // Get original URL
 
-        if (streamUrl == null) {
-            print("PlayerRepository: Suitable stream could not be extracted from JSON: $audioStreamsData");
-            throw PipedException("Could not extract a suitable audio stream URL for ${track.title}");
+        if (originalStreamUrl == null) {
+          throw PipedException("Could not extract audio stream URL for ${track.title}");
         }
 
-        print("PlayerRepository: Original stream URL from API: $streamUrl");
+        print("PlayerRepository: Original stream URL from API: $originalStreamUrl");
 
-        try {
-          final uri = Uri.parse(streamUrl);
-          if (uri.host == 'pipedproxy.rektube') {
-            streamUrl = uri.replace(scheme: 'http', host: '127.0.0.1', port: 3142).toString();
-            print("PlayerRepostory: Rewritten stream URL for local dev: $streamUrl");
-          } 
-        } catch (e) {
-          print("PlayerRepository: Error parsing or rewritting stream URL: $e");
-          throw PlayerException("Invalid stream URL format received from Piped API: ${e.toString()}");
+        // *** Use the helper function to get the final URL for the player ***
+        final playableStreamUrl = rewritePipedUrlForLocalDev(originalStreamUrl);
+
+        if (playableStreamUrl.isEmpty) { // Check if rewrite failed or URL was null
+          throw PlayerException("Invalid stream URL after rewrite.");
         }
 
-        
-
-        print("PlayerRepository: Final URL passed to player: $streamUrl");
-        final media = media_kit.Media(streamUrl);
+        print("PlayerRepository: Final URL passed to player: $playableStreamUrl");
+        final media = media_kit.Media(playableStreamUrl); // Use rewritten URL
         await _player.open(media, play: true);
         print("PlayerRepository: Opened media in player for ${track.title}");
+
 
       } catch (e, stackTrace) {
         print("PlayerRepository: Error playing track ${track.title}: $e\n$stackTrace");
