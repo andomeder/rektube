@@ -43,7 +43,7 @@ class SignUpController extends GetxController {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         username: username.trim(),
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password: password.trim(), // Send the original password
       );
 

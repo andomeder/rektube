@@ -28,7 +28,8 @@ DatabaseConnection connect() {
       password: _dbPassword,
   ),
   settings: const pg.ConnectionSettings(
-    sslMode: pg.SslMode.disable
+    sslMode: pg.SslMode.disable,
+    timeZone: 'UTC', // Explicitly set time zone to UTC
   ));
   //return DatabaseConnection(PgDatabase(endpoint: pgConnection));
   print("PgDatabase instance created for connection.");

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:drift_postgres/drift_postgres.dart';
 import 'package:rektube/database/tables/users.dart';
 import 'package:rektube/database/connection/connection.dart' as conn;
 import 'package:rektube/database/daos/user_dao.dart';
@@ -7,13 +8,15 @@ import 'package:rektube/database/type_converters.dart';
 part 'database.g.dart';
 
 @DriftDatabase(tables: [Users], daos: [UserDao])
-
 class AppDatabase extends _$AppDatabase {
-  // Constructor that takes the connection query excutor
   AppDatabase(QueryExecutor e) : super(e);
 
   // Define a factory constructor or singleton for easier access (optional)
   static final AppDatabase instance = AppDatabase(conn.connect().executor);
+
+  // Register type converters globally
+  @override
+    Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
 
   // Schema version
   @override
@@ -34,7 +37,6 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     beforeOpen: (details) async {
-       // Can run custom statements or checks before the DB is fully ready
        if (details.wasCreated) {
           print('Database was created!');
        } else if (details.hadUpgrade) {

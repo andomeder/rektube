@@ -56,8 +56,8 @@ class AuthRepository {
       username: username,
       email: email,
       passwordHash: hashedPassword,
-      createdAt: const Value.absent(),
-      updatedAt: const Value.absent(),
+      //createdAt: DateTime.now().toUtc(),
+      //updatedAt: DateTime.now().toUtc(),
     );
 
     try {

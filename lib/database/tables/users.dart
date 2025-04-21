@@ -1,10 +1,9 @@
 import 'package:drift/drift.dart';
+import 'package:drift_postgres/drift_postgres.dart';
 import 'package:rektube/database/type_converters.dart';
 
 @DataClassName('User', extending: Table)
-
 class Users extends Table {
-
   @override
   String get tableName => 'users';
 
@@ -15,8 +14,25 @@ class Users extends Table {
   TextColumn get email => text().unique()();
   TextColumn get passwordHash => text().named('password_hash')();
 
-  DateTimeColumn get createdAt => dateTime().named('created_at').map(const TimestampNoTzConverter() as TypeConverter<dynamic, DateTime>)();
-  DateTimeColumn get updatedAt => dateTime().named('updated_at').map(const TimestampNoTzConverter() as TypeConverter<dynamic, DateTime>)();
-  //TextColumn get createdAt => text().named('created_at')();
-  //TextColumn get updatedAt => text().named('updated_at')();
+  // Use the custom converter for DateTime fields
+  //DateTimeColumn get createdAt => dateTime()
+  //    .named('created_at')
+  //    .withDefault(currentDateAndTime)
+  //    .map(const PostgreSQLTimestampConverter())();
+
+      
+  //DateTimeColumn get updatedAt => dateTime()
+  //    .named('updated_at')
+  //    .withDefault(currentDateAndTime)
+  //    .map(const PostgreSQLTimestampConverter())();
+
+  Column<PgDateTime> get createdAt =>
+      customType(PgTypes.timestampWithTimezone)
+        .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
+        .map(const PostgreSQLTimestampConverter())();
+
+  Column<PgDateTime> get updatedAt =>
+      customType(PgTypes.timestampWithTimezone)
+        .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
+        .map(const PostgreSQLTimestampConverter())();
 }
