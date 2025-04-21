@@ -21,7 +21,7 @@ class History extends Table {
 
   // Store the timestamp when it was played
 
-  Column<PgDateTime> get createdAt =>
+  Column<PgDateTime> get playedAt =>
     customType(PgTypes.timestampWithTimezone)
       .named('played_at')
       .map(const PostgreSQLTimestampConverter())();

@@ -1,5 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:drift_postgres/drift_postgres.dart';
+import 'package:rektube/database/daos/history_dao.dart';
+import 'package:rektube/database/daos/liked_song_dao.dart';
+import 'package:rektube/database/daos/playlist_dao.dart';
+import 'package:rektube/database/daos/playlist_item_dao.dart';
 import 'package:rektube/database/tables/history.dart';
 import 'package:rektube/database/tables/liked_songs.dart';
 import 'package:rektube/database/tables/playlist_items.dart';
