@@ -32,7 +32,7 @@ class DashboardScreen extends ConsumerWidget {
             onSelected: (ProfileAction action) async {
               switch (action) {
                 case ProfileAction.settings:
-                // TODO: Navigate to settings screen
+                Get.toNamed(AppRoutes.settings);
                 print("Settings selected");
                 Get.snackbar("Info", "Settings menu not implemented yet.");
                 break;
