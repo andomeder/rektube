@@ -10,9 +10,9 @@ class PlaylistDao extends DatabaseAccessor<AppDatabase> with _$PlaylistDaoMixin 
   PlaylistDao(super.db);
 
   // Get all playlists for a specific user
-  Future<List<Playlist>> getUserPlaylists(int userId) {
+  Stream<List<Playlist>> watchUserPlaylists(int userId) {
     return (select(playlists)..where((p) => p.userId.equals(userId)))
-        .get();
+        .watch();
   }
 
   // Create a new playlist

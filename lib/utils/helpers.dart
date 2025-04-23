@@ -20,8 +20,14 @@ String rewritePipedUrlForLocalDev(String? originalUrl) {
   }
 
   const String internalProxyHost = 'pipedproxy.rektube'; // The hostname used internally by Piped
-  const String localForwardHost = '127.0.0.1'; // Use localhost/127.0.0.1 for adb reverse
-  const int localForwardPort = 3142; // The host port mapped to Caddy
+
+
+  const String ngrokHost = '7916-41-89-16-2.ngrok-free.app';
+  const int ngrokPort = 80; // or null if using HTTPS default 443
+
+
+  //const String localForwardHost = '127.0.0.1'; // Use localhost/127.0.0.1 for adb reverse
+  //const int localForwardPort = 3142; // The host port mapped to Caddy
 
   try {
     final uri = Uri.parse(originalUrl);
@@ -30,8 +36,10 @@ String rewritePipedUrlForLocalDev(String? originalUrl) {
       // Replace host and port
       final newUri = uri.replace(
         scheme: 'http', // Assuming local dev is http
-        host: localForwardHost,
-        port: localForwardPort,
+        //host: localForwardHost,
+        host: ngrokHost,
+        //port: localForwardPort,
+        port: ngrokPort,
       );
       // print("Rewriting URL: ${originalUrl} -> ${newUri.toString()}"); // Debugging
       return newUri.toString();

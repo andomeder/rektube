@@ -24,9 +24,9 @@ class LibraryRepository {
   LibraryRepository(this._ref);
 
   // --- Playlists ---
-  Future<List<Playlist>> getUserPlaylists(int userId) async {
+  Stream<List<Playlist>> watchUserPlaylists(int userId) {
     try {
-      return await _playlistDao.getUserPlaylists(userId);
+      return _playlistDao.watchUserPlaylists(userId);
     } catch (e) {
       print("Error getting playlists: $e");
       throw DatabaseException("Could not load playlists.");
@@ -100,9 +100,9 @@ class LibraryRepository {
 
 
   // --- Liked Songs ---
-   Future<List<LikedSong>> getLikedSongs(int userId) async {
+   Stream<List<LikedSong>> watchLikedSongs(int userId) {
      try {
-        return await _likedSongDao.getLikedSongs(userId);
+        return _likedSongDao.watchLikedSongs(userId);
      } catch (e) {
         print("Error getting liked songs: $e");
         throw DatabaseException("Could not load liked songs.");
@@ -146,9 +146,9 @@ class LibraryRepository {
    }
 
   // --- History ---
-  Future<List<HistoryEntry>> getHistory(int userId, {int limit = 50}) async {
+  Stream<List<HistoryEntry>> watchHistory(int userId, {int limit = 50}) {
      try {
-        return await _historyDao.getRecentHistory(userId, limit: limit);
+        return _historyDao.watchRecentHistory(userId, limit: limit);
      } catch (e) {
         print("Error getting history: $e");
         throw DatabaseException("Could not load history.");

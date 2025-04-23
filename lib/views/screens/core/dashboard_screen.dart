@@ -50,18 +50,6 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            Container(
-              width: 150.0,
-              height: 80.0,
-              color: Colors.blue, // Or use decoration: BoxDecoration(...)
-              alignment:
-                  Alignment
-                      .center, // Alternative to using Center widget as child
-              child: Text(
-                'Users \n 150',
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-              ),
-            ),
           ],
         ),
       ),

@@ -3,34 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rektube/controllers/auth/auth_controller.dart'; // To get user ID
 import 'package:rektube/database/database.dart'; // Import data classes
-import 'package:rektube/models/track.dart' as ModelTrack;
+import 'package:rektube/models/track.dart' as model_track;
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
 import 'package:rektube/views/widgets/core/track_list_item.dart';
 // Import other widgets as needed (e.g., TrackListItem)
 
-// Provider to fetch library data together (example)
-final libraryDataProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final authState = ref.watch(authControllerProvider);
+
+// Individual StreamProviders for each section
+final playlistsStreamProvider = StreamProvider.autoDispose<List<Playlist>>((ref) {
+  final userId = ref.watch(authControllerProvider).valueOrNull?.id;
+  if (userId == null) return Stream.value([]); // Return empty stream if not logged in
   final libraryRepo = ref.watch(libraryRepositoryProvider);
-  final userId = authState.valueOrNull?.id;
+  return libraryRepo.watchUserPlaylists(userId);
+});
 
-  if (userId == null) {
-    throw Exception("User not logged in"); // Or handle appropriately
-  }
+final likedSongsStreamProvider = StreamProvider.autoDispose<List<LikedSong>>((ref) {
+  final userId = ref.watch(authControllerProvider).valueOrNull?.id;
+  if (userId == null) return Stream.value([]);
+  final libraryRepo = ref.watch(libraryRepositoryProvider);
+  return libraryRepo.watchLikedSongs(userId);
+});
 
-  // Fetch data in parallel
-  final results = await Future.wait([
-    libraryRepo.getUserPlaylists(userId),
-    libraryRepo.getLikedSongs(userId),
-    libraryRepo.getHistory(userId, limit: 20), // Limit history display initially
-  ]);
-
-  return {
-    'playlists': results[0] as List<Playlist>,
-    'likedSongs': results[1] as List<LikedSong>,
-    'history': results[2] as List<HistoryEntry>,
-  };
+final historyStreamProvider = StreamProvider.autoDispose<List<HistoryEntry>>((ref) {
+   final userId = ref.watch(authControllerProvider).valueOrNull?.id;
+  if (userId == null) return Stream.value([]);
+  final libraryRepo = ref.watch(libraryRepositoryProvider);
+  // You can adjust the limit here if needed
+  return libraryRepo.watchHistory(userId, limit: 20);
 });
 
 
@@ -39,8 +39,12 @@ class LibraryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final libraryDataAsync = ref.watch(libraryDataProvider);
+    // Watch individual stream providers
+    final playlistsAsync = ref.watch(playlistsStreamProvider);
+    final likedSongsAsync = ref.watch(likedSongsStreamProvider);
+    final historyAsync = ref.watch(historyStreamProvider);
     final textTheme = Theme.of(context).textTheme;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -49,81 +53,78 @@ class LibraryScreen extends ConsumerWidget {
         // Optional: Add 'Create Playlist' button
         // actions: [ IconButton(icon: Icon(Icons.add), onPressed: () { /* TODO */ }) ],
       ),
-      body: libraryDataAsync.when(
-        data: (data) {
-          final List<Playlist> playlists = data['playlists'];
-          final List<LikedSong> likedSongs = data['likedSongs'];
-          final List<HistoryEntry> history = data['history'];
-
+      body: RefreshIndicator(
+        onRefresh: () async {
+            // Invalidate providers to force re-fetch (streams might auto-update though)
+            ref.invalidate(playlistsStreamProvider);
+            ref.invalidate(likedSongsStreamProvider);
+            ref.invalidate(historyStreamProvider);
+            // Give some time for providers to update if needed
+            await Future.delayed(const Duration(milliseconds: 500));
+         },
           // Use DefaultTabController or custom scrolling for sections
-          return ListView( // Simple list for now
+          child: ListView( // Simple list for now
             children: [
-               // --- Playlists Section ---
-               Padding(
-                 padding: const EdgeInsets.all(16.0),
-                 child: Text("Playlists", style: textTheme.headlineSmall),
-               ),
-               if (playlists.isEmpty)
-                  const ListTile(title: Text("No playlists yet."))
-               else
-                  ...playlists.map((playlist) => ListTile(
-                     leading: const Icon(Icons.playlist_play),
-                     title: Text(playlist.name),
-                     // subtitle: Text("${playlist.itemCount ?? 0} songs"), // Need item count later
-                     onTap: () {
-                         // TODO: Navigate to PlaylistDetailsScreen
-                         print("Tapped playlist: ${playlist.name}");
-                     },
-                  )),
+             // --- Playlists Section ---
+             Padding(
+               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+               child: Text("Playlists", style: textTheme.headlineSmall),
+             ),
+             playlistsAsync.when(
+               data: (playlists) => playlists.isEmpty
+                   ? const ListTile(dense: true, title: Text("No playlists yet."))
+                   : Column(children: playlists.map((playlist) => ListTile( /* ... */ )).toList()),
+               loading: () => const Center(child: Padding(padding: EdgeInsets.all(8.0), child: LoadingIndicator())),
+               error: (err, st) => ListTile(title: Text("Error loading playlists: $err")),
+             ),
 
-               const Divider(),
+             const Divider(),
 
-               // --- Liked Songs Section ---
-               ListTile(
-                  leading: const Icon(Icons.favorite),
-                  title: Text("Liked Songs", style: textTheme.titleLarge),
-                  subtitle: Text("${likedSongs.length} songs"),
-                  onTap: () {
-                     // TODO: Navigate to a Liked Songs screen or show list
-                     print("Tapped Liked Songs");
-                  },
-               ),
-               // Optional: Show a few liked songs directly?
-               // ...likedSongs.take(3).map((song) => TrackListItem(track: ..., onTap: ...)),
 
-               const Divider(),
+             // --- Liked Songs Section ---
+             likedSongsAsync.when(
+                data: (likedSongs) => ListTile(
+                   leading: const Icon(Icons.favorite),
+                   title: Text("Liked Songs", style: textTheme.titleLarge),
+                   subtitle: Text("${likedSongs.length} songs"),
+                   onTap: () { print("Tapped Liked Songs"); },
+                ),
+                loading: () => const ListTile(title: Text("Liked Songs"), subtitle: Text("Loading...")),
+                error: (err, st) => ListTile(title: Text("Liked Songs"), subtitle: Text("Error: $err")),
+             ),
 
-               // --- History Section ---
-                Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                 child: Text("Recently Played", style: textTheme.headlineSmall),
-               ),
-               if (history.isEmpty)
-                 const ListTile(title: Text("No playback history yet."))
-               else
-                 ...history.map((entry) {
-                   // Convert HistoryEntry back to a Track model for TrackListItem
-                   final track = ModelTrack.Track(
-                     id: entry.trackId,
-                     title: entry.trackTitle,
-                     artist: entry.trackArtist,
-                     thumbnailUrl: entry.trackThumbnailUrl,
-                     duration: entry.trackDurationSeconds != null ? Duration(seconds: entry.trackDurationSeconds!) : null,
-                   );
+              const Divider(),
+
+
+             // --- History Section ---
+             Padding(
+               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+               child: Text("Recently Played", style: textTheme.headlineSmall),
+             ),
+             historyAsync.when(
+               data: (history) => history.isEmpty
+                 ? const ListTile(dense: true, title: Text("No playback history yet."))
+                 : Column( // Use Column to avoid nested ListViews
+                     children: history.map((entry) {
+                        final track = model_track.Track(
+                           id: entry.trackId,
+                           title: entry.trackTitle,
+                           artist: entry.trackArtist,
+                           thumbnailUrl: entry.trackThumbnailUrl,
+                           duration: entry.trackDurationSeconds != null ? Duration(seconds: entry.trackDurationSeconds!) : null,
+                        );
                    return TrackListItem(track: track, onTap: () {
                       // TODO: Play track from history
                        print("Tapped history: ${track.title}");
                    });
-                 }),
-                 const SizedBox(height: 70), // Padding at bottom for mini player
-            ],
-          );
-        },
-        loading: () => const Center(child: LoadingIndicator()),
-        error: (error, stack) {
-           print("Library Screen Error: $error\n$stack");
-           return Center(child: Text("Error loading library: $error"));
-        },
+                     }).toList(),
+                   ),
+               loading: () => const Center(child: Padding(padding: EdgeInsets.all(8.0), child: LoadingIndicator())),
+               error: (err, st) => ListTile(title: Text("Error loading history: $err")),
+             ),
+             const SizedBox(height: 70), // Padding at bottom for mini player
+           ],
+         ),
       ),
     );
   }

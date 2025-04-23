@@ -11,12 +11,12 @@ class HistoryDao extends DatabaseAccessor<AppDatabase> with _$HistoryDaoMixin {
 
   // Get recent history for a user, ordered by most recent first
   // Use distinctOn or subqueries later if you only want unique track IDs
-  Future<List<HistoryEntry>> getRecentHistory(int userId, {int limit = 50}) {
+  Stream<List<HistoryEntry>> watchRecentHistory(int userId, {int limit = 50}) {
     return (select(history)
           ..where((entry) => entry.userId.equals(userId))
           ..orderBy([(entry) => OrderingTerm(expression: entry.playedAt, mode: OrderingMode.desc)])
           ..limit(limit))
-        .get();
+        .watch();
   }
 
   // Add an entry to history

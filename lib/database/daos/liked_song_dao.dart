@@ -10,11 +10,11 @@ class LikedSongDao extends DatabaseAccessor<AppDatabase> with _$LikedSongDaoMixi
   LikedSongDao(super.db);
 
   // Get all liked songs for a user, ordered by liked date
-  Future<List<LikedSong>> getLikedSongs(int userId) {
+  Stream<List<LikedSong>> watchLikedSongs(int userId) {
      return (select(likedSongs)
           ..where((song) => song.userId.equals(userId))
           ..orderBy([(song) => OrderingTerm(expression: song.likedAt, mode: OrderingMode.desc)]))
-        .get();
+        .watch();
   }
 
   // Check if a specific track is liked by a user
