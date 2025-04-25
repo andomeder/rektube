@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:rektube/configs/colours.dart';
 void showSnackbar(String title, String message, {bool isError = false}) {
@@ -22,7 +23,7 @@ String rewritePipedUrlForLocalDev(String? originalUrl) {
   const String internalProxyHost = 'pipedproxy.rektube'; // The hostname used internally by Piped
 
 
-  const String ngrokHost = '7916-41-89-16-2.ngrok-free.app';
+  String ngrokHost = dotenv.env['NGROK_HOST']!; // The hostname used by ngrok
   const int ngrokPort = 80; // or null if using HTTPS default 443
 
 
