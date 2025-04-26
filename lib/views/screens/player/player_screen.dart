@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/controllers/player/player_controller.dart';
+import 'package:rektube/providers/player_providers.dart';
+import 'package:rektube/providers/repository_providers.dart';
+import 'package:rektube/utils/helpers.dart';
+import 'package:rektube/views/screens/core/library_screen.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -46,7 +52,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Now Playing"),
-        backgroundColor: Colors.transparent, 
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Obx(() {
@@ -75,14 +81,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
               // Top Spacer or Album Art Area
               Column(
                 children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.1,
-                  ), 
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.7,
-                    height:
-                        MediaQuery.of(context).size.width *
-                        0.7,
+                    height: MediaQuery.of(context).size.width * 0.7,
                     margin: const EdgeInsets.only(bottom: 30),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.0),
@@ -138,8 +140,80 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 20),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      // Watch tje provider that checks if the current track is selected
+                      final isLikedAsync = ref.watch(
+                        isCurrentTrackLikedProvider,
+                      );
+                      final userId =
+                          ref.watch(authControllerProvider).valueOrNull?.id;
+                      final track = playerController.currentTrack.value;
+
+                      return IconButton(
+                        iconSize: 30,
+                        onPressed:
+                            (userId != null && track != null)
+                                ? () async {
+                                  final libraryRepo = ref.read(
+                                    libraryRepositoryProvider,
+                                  );
+                                  final currentyLiked =
+                                      isLikedAsync.value ??
+                                      false; // get current liked state safely
+                                  try {
+                                    if (currentyLiked) {
+                                      await libraryRepo.unlikeSong(
+                                        userId,
+                                        track.id,
+                                      );
+                                    } else {
+                                      await libraryRepo.likeSong(userId, track);
+                                    }
+                                    // Invalidate provider to refresh liked status
+                                    ref.invalidate(isCurrentTrackLikedProvider);
+                                    // Also invalidate library screen data if it shows liked songs list
+                                    ref.invalidate(likedSongsStreamProvider);
+                                  } catch (e) {
+                                    showSnackbar(
+                                      "Error",
+                                      "Could not update like status.",
+                                      isError: true,
+                                    );
+                                  }
+                                }
+                                : null, // Disable if no user/track
+                        icon: isLikedAsync.when(
+                          // Show filed heart when liked
+                          data:
+                              (isLiked) => Icon(
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color:
+                                    isLiked
+                                        ? theme.colorScheme.primary
+                                        : Colors.grey,
+                              ),
+                          loading:
+                              () => const Icon(
+                                Icons.favorite_border,
+                                color: Colors.grey,
+                              ),
+                          error:
+                              (e, s) => const Icon(
+                                Icons.favorite_border,
+                                color: Colors.grey,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
+
+              const SizedBox(height: 12),
 
               // Seek Bar and Time Labels
               Column(
@@ -155,10 +229,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       trackHeight: 3.0,
                     ),
                     child: Slider(
-                      value: _sliderValue.clamp(
-                        0.0,
-                        maxSliderValue,
-                      ), 
+                      value: _sliderValue.clamp(0.0, maxSliderValue),
                       min: 0.0,
                       max: maxSliderValue,
                       activeColor: theme.colorScheme.primary,
@@ -215,14 +286,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     // TODO: Add Shuffle Button
                     IconButton(
                       iconSize: 28,
                       icon: const Icon(Icons.shuffle),
-                      color: Colors.grey, 
+                      color: Colors.grey,
                       onPressed: () {
                         Get.snackbar("Info", "Shuffle not implemented");
                       },
@@ -251,7 +321,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     IconButton(
                       iconSize: 40,
                       icon: const Icon(Icons.skip_next_rounded),
-                      color: Colors.grey, 
+                      color: Colors.grey,
                       onPressed: () {
                         Get.snackbar("Info", "Next not implemented");
                       },
@@ -260,7 +330,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     IconButton(
                       iconSize: 28,
                       icon: const Icon(Icons.repeat),
-                      color: Colors.grey, 
+                      color: Colors.grey,
                       onPressed: () {
                         Get.snackbar("Info", "Repeat not implemented");
                       },

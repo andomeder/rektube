@@ -3,7 +3,7 @@ import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/controllers/player/player_controller.dart';
 import 'package:rektube/providers/repository_providers.dart';
 
-final isurrentTrackkedProvider = FutureProvider.autoDispose<bool>((ref) async {
+final isCurrentTrackLikedProvider = FutureProvider.autoDispose<bool>((ref) async {
   final userId = ref.watch(authControllerProvider).valueOrNull?.id;
   // Wwatch the player conroller's curent track ID
   final trackId = ref.watch(playerControllerProvider.select((pc) => pc.currentTrack.value?.id));

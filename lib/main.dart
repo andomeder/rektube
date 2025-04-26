@@ -13,6 +13,7 @@ import 'package:rektube/views/screens/auth/login_screen.dart';
 import 'package:rektube/utils/routes.dart';
 import 'package:rektube/views/screens/core/navigation_screen.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,9 @@ import 'package:rektube/views/widgets/common/loading_indicator.dart';
 
 void main() async {
   // --- Start Initialization ---
-  WidgetsFlutterBinding.ensureInitialized();
+  //WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   MediaKit.ensureInitialized();
 
   // Load environment variables FIRST
@@ -52,9 +55,12 @@ void main() async {
   Get.put<PlayerController>(PlayerController(playerRepository));
   print("PlayerController registered registered with GetX.");
 
+  FlutterNativeSplash.remove();
   // Run the app within Riverpod's ProviderScope
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
+
+
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
