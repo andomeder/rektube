@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rektube/configs/colours.dart';
+import 'package:rektube/configs/constants.dart';
+import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/models/track.dart';
-
-class TrackListItem extends StatelessWidget {
+import 'package:get/get.dart';
+import 'package:rektube/providers/repository_providers.dart';
+import 'package:rektube/utils/helpers.dart';
+import 'package:rektube/views/screens/core/library_screen.dart';
+import 'package:rektube/views/widgets/common/loading_indicator.dart';
+class TrackListItem extends ConsumerWidget {
   final Track track;
   final VoidCallback? onTap;
 
@@ -25,10 +32,60 @@ class TrackListItem extends StatelessWidget {
     return "$minutes:$seconds";
   }
 
+  void _showAddToPlaylistDialog(BuildContext context, WidgetRef ref, Track trackToAdd) {
+    final userId = ref.read(authControllerProvider).valueOrNull?.id;
+
+    if (userId == null) return;
+
+    // Watch user's playlists
+    final playlistsAsync = ref.watch(playlistsStreamProvider);
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Add to Playlist"),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: playlistsAsync.when(
+            data: (playlists) {
+              if (playlists.isEmpty) {
+                return const Text("No playlists found. Create one first in the library");
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: playlists.length,
+                itemBuilder: (context, index) {
+                  final playlist = playlists[index];
+                  return ListTile(
+                    title: Text(playlist.name),
+                    onTap: () async {
+                      Get.back();
+                      try {
+                        final libraryRepo = ref.read(libraryRepositoryProvider);
+                        await libraryRepo.addTrackToPlaylist(playlist.id, trackToAdd);
+                        showSnackbar("Success", "Added '${trackToAdd.title}' to '${playlist.name}'");
+                      } catch (e) {
+                        showSnackbar("Error", "Failed to add track: $e", isError: true);
+                      }
+                    },
+                  );
+                }
+                );
+            }, 
+            error: (err, st) => Text("Error loading playlists: $err"), 
+            loading: () => const Center(child: LoadingIndicator(),)
+            ),
+        ),
+        actions: [TextButton(onPressed: () => Get.back(), child: const Text("Cancel"))],
+      )
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final fullThumbnailUrl = track.thumbnailPath != null ? '$pipedInstanceUrl${track.thumbnailPath}' : null;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
@@ -54,9 +111,32 @@ class TrackListItem extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: textTheme.bodyMedium?.copyWith(color: colorHint),
       ),
-      trailing: Text(
-        _formatDuration(track.duration),
-        style: textTheme.bodySmall?.copyWith(color: colorHint),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _formatDuration(track.duration),
+            style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary),
+          ),
+
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: "Track Options",
+            onSelected: (String result) {
+              switch (result) {
+                case 'add_playlist':
+                _showAddToPlaylistDialog(context, ref, track);
+                break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'add_playlist',
+                child: ListTile(leading: Icon(Icons.playlist_add,), title: Text("Add to Playlist"),)
+                )
+            ],
+            )
+        ],
       ),
       onTap: onTap,
     );
