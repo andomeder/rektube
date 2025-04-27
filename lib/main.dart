@@ -8,6 +8,7 @@ import 'package:rektube/configs/colours.dart';
 import 'package:rektube/configs/themes.dart';
 import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/controllers/player/player_controller.dart';
+import 'package:rektube/controllers/settings/theme_controller.dart';
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/views/screens/auth/login_screen.dart';
 import 'package:rektube/utils/routes.dart';
@@ -45,6 +46,9 @@ void main() async {
   await GetStorage.init();
   print("GetStorage initialized.");
 
+  Get.put<ThemeController>(ThemeController());
+  print("ThemeController registered with GetX.");
+
   //Create the Riverpod container
   final container = ProviderContainer();
 
@@ -54,6 +58,8 @@ void main() async {
   // Instantiate and register PlayerController using GetX, passing the repository
   Get.put<PlayerController>(PlayerController(playerRepository));
   print("PlayerController registered registered with GetX.");
+
+
 
   FlutterNativeSplash.remove();
   // Run the app within Riverpod's ProviderScope
@@ -67,12 +73,15 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeController themeController = Get.find<ThemeController>();
     // Watch the auth state provided by AuthController
     final authState = ref.watch(authControllerProvider);
 
-    return GetMaterialApp(
+    return Obx (() => GetMaterialApp(
       title: 'Rektube',
       theme: darkTheme,
+      darkTheme: darkTheme,
+      themeMode: themeController.themeMode,
       // Conditionally display screens based on the AsyncValue state
       home: authState.when(
         data: (user) {
@@ -136,6 +145,6 @@ class MyApp extends ConsumerWidget {
       getPages: AppRoutes.routes,
       initialRoute: null, // Let 'home' handle the initial screen logic
       debugShowCheckedModeBanner: false,
-    );
+    ));
   }
 }

@@ -1,10 +1,13 @@
 // lib/views/screens/core/library_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:rektube/controllers/auth/auth_controller.dart'; // To get user ID
 import 'package:rektube/database/database.dart'; // Import data classes
 import 'package:rektube/models/track.dart' as model_track;
 import 'package:rektube/providers/repository_providers.dart';
+import 'package:rektube/utils/helpers.dart';
+import 'package:rektube/utils/routes.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
 import 'package:rektube/views/widgets/core/track_list_item.dart';
 // Import other widgets as needed (e.g., TrackListItem)
@@ -37,6 +40,60 @@ final historyStreamProvider = StreamProvider.autoDispose<List<HistoryEntry>>((re
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
 
+  void _showCreatePlaylistDialog(BuildContext context, WidgetRef ref) {
+    final TextEditingController playlistNameController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final userId = ref.read(authControllerProvider).valueOrNull?.id;
+    if (userId == null) {
+      showSnackbar("Error", "You must be logged in to create a playlist.", isError: true);
+      return;
+    }
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Create New Playlist"),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: playlistNameController,
+            decoration: const InputDecoration(
+              hintText: "Playlist Name",
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Playlist name cannot be empty.";
+              }
+              return null;
+            },
+          )
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(), 
+              child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (formKey.currentState?.validate() ?? false) {
+                    final name = playlistNameController.text.trim();
+                    Get.back();
+
+                    try {
+                      final libraryRepo = ref.read(libraryRepositoryProvider);
+                      await libraryRepo.createPlaylist(userId, name);
+                      showSnackbar("Success", "Playlist '$name' created.");
+                    } catch (e) {
+                      showSnackbar("Error", "Could not create playlist. $e", isError: true);
+                    }
+                  }
+                }, 
+                child: const Text("Create"),
+                )
+          ],
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch individual stream providers
@@ -51,7 +108,7 @@ class LibraryScreen extends ConsumerWidget {
         title: const Text("Library"),
         automaticallyImplyLeading: false,
         // Optional: Add 'Create Playlist' button
-        // actions: [ IconButton(icon: Icon(Icons.add), onPressed: () { /* TODO */ }) ],
+        actions: [ IconButton(icon: Icon(Icons.add_box_outlined),tooltip: "Create Playlist" ,onPressed: () => _showCreatePlaylistDialog(context, ref)) ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -72,8 +129,16 @@ class LibraryScreen extends ConsumerWidget {
              ),
              playlistsAsync.when(
                data: (playlists) => playlists.isEmpty
-                   ? const ListTile(dense: true, title: Text("No playlists yet."))
-                   : Column(children: playlists.map((playlist) => ListTile( /* ... */ )).toList()),
+                   ? const ListTile(dense: true, title: Text("No playlists yet. Tap '+' to create one."))
+                   : Column(
+                    children: playlists.map((playlist) => ListTile(
+                       leading: const Icon(Icons.playlist_play),
+                       title: Text(playlist.name),
+                       onTap: () {
+                        print("Tapped playlist: ${playlist.name} (ID: ${playlist.id})");
+                        Get.toNamed(AppRoutes.player, arguments: playlist);
+                       },
+                       )).toList()),
                loading: () => const Center(child: Padding(padding: EdgeInsets.all(8.0), child: LoadingIndicator())),
                error: (err, st) => ListTile(title: Text("Error loading playlists: $err")),
              ),
