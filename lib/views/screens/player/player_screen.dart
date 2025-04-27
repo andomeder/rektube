@@ -63,13 +63,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
           final track = playerController.currentTrack.value;
           final isPlaying = playerController.isPlaying.value;
           final duration = playerController.duration.value;
-        
+
           if (track == null) {
             return const Center(
               heightFactor: 5.0,
-              child: Text("No track selected."));
+              child: Text("No track selected."),
+            );
           }
-        
+
           // Calculate max value for slider (use 1.0 if duration is unknown/zero)
           final double maxSliderValue =
               duration > Duration.zero ? duration.inSeconds.toDouble() : 1.0;
@@ -77,11 +78,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
           if (_sliderValue > maxSliderValue) {
             _sliderValue = maxSliderValue;
           }
-        
+
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 10.0,
+            ),
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom * 100),
+              constraints: BoxConstraints(
+                minHeight:
+                    MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom * 100,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -113,7 +123,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (c, e, s) => const Center(
-                                          child: Icon(Icons.music_note, size: 80),
+                                          child: Icon(
+                                            Icons.music_note,
+                                            size: 80,
+                                          ),
                                         ),
                                     loadingBuilder:
                                         (c, w, p) =>
@@ -150,47 +163,95 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       const SizedBox(height: 15),
                       Consumer(
                         builder: (context, ref, child) {
-                          // Watch tje provider that checks if the current track is selected
-                          final isLikedAsync = ref.watch(
-                            isCurrentTrackLikedProvider,
-                          );
+                          // track is available from the outer Obx scope
+                          final currentTrack =
+                              playerController.currentTrack.value;
                           final userId =
                               ref.watch(authControllerProvider).valueOrNull?.id;
-                          final track = playerController.currentTrack.value;
-                      
+
+                          // Watch the new provider, passing the current track ID IF available
+                          final isLikedAsync = ref.watch(
+                            isTrackLikedProvider(
+                              currentTrack?.id ?? '',
+                            ), // Pass ID or empty string if null
+                          );
+
+                          // Disable button if no track or no user
+                          final bool canLike =
+                              userId != null && currentTrack != null;
+
                           return IconButton(
-                             iconSize: 30,
-                             icon: isLikedAsync.when(
-                               data: (isLiked) => Icon(
-                                 isLiked ? Icons.favorite : Icons.favorite_border,
-                                 color: isLiked ? theme.colorScheme.primary : Colors.grey,
-                               ),
-                               loading: () => const Icon(Icons.favorite_border, color: Colors.grey),
-                               error: (e, s) {
-                                    print("Error watching isCurrentTrackLikedProvider: $e");
-                                    return const Icon(Icons.favorite_border, color: Colors.grey);
-                               }
-                             ),
-                             onPressed: (userId != null && track != null) ? () async {
-                               final libraryRepo = ref.read(libraryRepositoryProvider);
-                               final currentlyLiked = isLikedAsync.value ?? false;
-                               try {
-                                 if (currentlyLiked) {
-                                   await libraryRepo.unlikeSong(userId, track.id);
-                                 } else {
-                                   await libraryRepo.likeSong(userId, track);
-                                 }
-                                 ref.invalidate(isCurrentTrackLikedProvider);
-                                 ref.invalidate(likedSongsStreamProvider);
-                               } catch (e) {
-                                 showSnackbar("Error", "Could not update like status.", isError: true);
-                               }
-                             } : null,
-                           );
-                         }),
-                      ],
-                    ),
-                      
+                            iconSize: 30,
+                            icon: isLikedAsync.when(
+                              data:
+                                  (isLiked) => Icon(
+                                    isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color:
+                                        isLiked
+                                            ? theme.colorScheme.primary
+                                            : Colors.grey,
+                                  ),
+                              loading:
+                                  () => const Icon(
+                                    Icons.favorite_border,
+                                    color: Colors.grey,
+                                  ),
+                              error: (e, s) {
+                                print(
+                                  "Error watching isTrackLikedProvider: $e",
+                                );
+                                return const Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.grey,
+                                );
+                              },
+                            ),
+                            // Use canLike to enable/disable onPressed
+                            onPressed:
+                                canLike
+                                    ? () async {
+                                      final libraryRepo = ref.read(
+                                        libraryRepositoryProvider,
+                                      );
+                                      final currentlyLiked =
+                                          isLikedAsync.value ?? false;
+                                      try {
+                                        if (currentlyLiked) {
+                                          await libraryRepo.unlikeSong(
+                                            userId!,
+                                            currentTrack!.id,
+                                          ); // Use definite non-null
+                                        } else {
+                                          await libraryRepo.likeSong(
+                                            userId!,
+                                            currentTrack!,
+                                          ); // Use definite non-null
+                                        }
+                                        // Invalidate the family provider WITH the specific track ID
+                                        ref.invalidate(
+                                          isTrackLikedProvider(currentTrack.id),
+                                        );
+                                        // Invalidate the stream for the library screen list
+                                        ref.invalidate(
+                                          likedSongsStreamProvider,
+                                        );
+                                      } catch (e) {
+                                        showSnackbar(
+                                          "Error",
+                                          "Could not update like status.",
+                                          isError: true,
+                                        );
+                                      }
+                                    }
+                                    : null, // Disable if canLike is false
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
                   // Seek Bar and Time Labels
                   Column(
                     children: [
@@ -223,16 +284,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           },
                           onChangeEnd: (value) {
                             // When user releases slider, seek the player
-                            playerController.seek(Duration(seconds: value.toInt()));
+                            playerController.seek(
+                              Duration(seconds: value.toInt()),
+                            );
                             // Short delay before resuming stream updates to avoid jitter
-                            Future.delayed(const Duration(milliseconds: 200), () {
-                              if (mounted) {
-                                // Check if widget is still mounted
-                                setState(() {
-                                  _isSeeking = false; // Stop seeking
-                                });
-                              }
-                            });
+                            Future.delayed(
+                              const Duration(milliseconds: 200),
+                              () {
+                                if (mounted) {
+                                  // Check if widget is still mounted
+                                  setState(() {
+                                    _isSeeking = false; // Stop seeking
+                                  });
+                                }
+                              },
+                            );
                           },
                         ),
                       ),
@@ -257,16 +323,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       //const SizedBox(height: 10),
                     ],
                   ),
-                      
+
                   // Playback Controls
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 10.0,
+                    ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // TODO: Add Shuffle Button
                         IconButton(
-                          iconSize: 28,
+                          iconSize: 26,
                           icon: const Icon(Icons.shuffle),
                           color: Colors.grey,
                           onPressed: () {
@@ -275,7 +344,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         ),
                         // TODO: Add Previous Button
                         IconButton(
-                          iconSize: 40,
+                          iconSize: 36,
                           icon: const Icon(Icons.skip_previous_rounded),
                           color: Colors.grey,
                           onPressed: () {
@@ -284,7 +353,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         ),
                         // Play/Pause Button
                         IconButton(
-                          iconSize: 70,
+                          iconSize: 64,
                           icon: Icon(
                             isPlaying
                                 ? Icons.pause_circle_filled_rounded
@@ -295,7 +364,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         ),
                         // TODO: Add Next Button
                         IconButton(
-                          iconSize: 40,
+                          iconSize: 36,
                           icon: const Icon(Icons.skip_next_rounded),
                           color: Colors.grey,
                           onPressed: () {
@@ -304,7 +373,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         ),
                         // TODO: Add Repeat Button
                         IconButton(
-                          iconSize: 28,
+                          iconSize: 26,
                           icon: const Icon(Icons.repeat),
                           color: Colors.grey,
                           onPressed: () {
@@ -315,7 +384,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     ),
                   ),
                   //SizedBox(
-                    //height: MediaQuery.of(context).size.height * 0.05,
+                  //height: MediaQuery.of(context).size.height * 0.05,
                   //), // Bottom padding
                 ],
               ),
