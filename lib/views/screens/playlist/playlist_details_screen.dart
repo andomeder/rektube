@@ -51,7 +51,7 @@ class PlaylistDetailsScreen extends ConsumerWidget {
                 duration: item.trackDurationSeconds != null ? Duration(seconds: item.trackDurationSeconds!) : null,
               );
 
-              return TrackListItem(track: , onTap: () {
+              return TrackListItem(track: track, onTap: () {
                 print("Playing from playlist: ${track.title}");
                 final playerController = Get.find<PlayerController>();
                 playerController.play(track, ref);
