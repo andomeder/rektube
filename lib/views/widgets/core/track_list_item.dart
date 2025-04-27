@@ -37,7 +37,7 @@ class TrackListItem extends StatelessWidget {
         height: 60,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4.0),
-          child: track.thumbnailUrl != null ? Image.network(track.thumbnailUrl!, fit: BoxFit.cover, loadingBuilder: (context, child, progress) {
+          child: track.thumbnailPath != null ? Image.network(track.thumbnailPath!, fit: BoxFit.cover, loadingBuilder: (context, child, progress) {
             return progress == null ? child: const Center(
               child: SizedBox(width: 20, height: 200, child: CircularProgressIndicator(strokeWidth: 2,),),
             );

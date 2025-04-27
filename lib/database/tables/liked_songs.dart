@@ -16,7 +16,7 @@ class LikedSongs extends Table {
    // Store metadata for easier display
   TextColumn get trackTitle => text().named('track_title')();
   TextColumn get trackArtist => text().named('track_artist')();
-  TextColumn get trackThumbnailUrl => text().named('track_thumbnail_url').nullable()();
+  TextColumn get trackThumbnailPath => text().named('track_thumbnail_path').nullable()();
   IntColumn get trackDurationSeconds => integer().named('track_duration_seconds').nullable()();
 
   Column<PgDateTime> get likedAt => customType(PgTypes.timestampWithTimezone)

@@ -65,9 +65,9 @@ class MiniPlayer extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(4.0),
                         child:
-                            currentTrack.thumbnailUrl != null
+                            currentTrack.thumbnailPath != null
                                 ? Image.network(
-                                  currentTrack.thumbnailUrl!,
+                                  currentTrack.thumbnailPath!,
                                   width: 40,
                                   height: 40,
                                   fit: BoxFit.cover,

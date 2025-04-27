@@ -17,7 +17,7 @@ class PlaylistItems extends Table {
   // Store track metadata directly here to avoid needing Piped API calls just to display playlist contents
   TextColumn get trackTitle => text().named('track_title')();
   TextColumn get trackArtist => text().named('track_artist')();
-  TextColumn get trackThumbnailUrl => text().named('track_thumbnail_url').nullable()(); // Nullable
+  TextColumn get trackThumbnailPath => text().named('track_thumbnail_path').nullable()(); // Nullable
   IntColumn get trackDurationSeconds => integer().named('track_duration_seconds').nullable()(); // Nullable duration in seconds
 
   Column<PgDateTime> get addedAt => customType(PgTypes.timestampWithTimezone)

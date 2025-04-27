@@ -91,7 +91,7 @@ class DashboardScreen extends ConsumerWidget {
                         id: entry.trackId,
                         title: entry.trackTitle,
                         artist: entry.trackArtist,
-                        thumbnailUrl: entry.trackThumbnailUrl,
+                        thumbnailPath: entry.trackThumbnailPath,
                         duration: entry.trackDurationSeconds != null ? Duration(seconds: entry.trackDurationSeconds!) : null,
                       );
                       // Use a custom card or widget for horizontal display
@@ -140,8 +140,8 @@ class DashboardScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
               child: AspectRatio(
                 aspectRatio: 1.0,
-                 child: track.thumbnailUrl != null
-                     ? Image.network(track.thumbnailUrl!, fit: BoxFit.cover,
+                 child: track.thumbnailPath != null
+                     ? Image.network(track.thumbnailPath!, fit: BoxFit.cover,
                          errorBuilder: (c, e, s) => Container(color: Colors.grey[800], child: const Icon(Icons.music_note)))
                      : Container(color: Colors.grey[800], child: const Icon(Icons.music_note)),
               )

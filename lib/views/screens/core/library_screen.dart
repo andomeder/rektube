@@ -110,7 +110,7 @@ class LibraryScreen extends ConsumerWidget {
                            id: entry.trackId,
                            title: entry.trackTitle,
                            artist: entry.trackArtist,
-                           thumbnailUrl: entry.trackThumbnailUrl,
+                           thumbnailPath: entry.trackThumbnailPath,
                            duration: entry.trackDurationSeconds != null ? Duration(seconds: entry.trackDurationSeconds!) : null,
                         );
                    return TrackListItem(track: track, onTap: () {

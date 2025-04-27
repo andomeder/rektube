@@ -78,7 +78,7 @@ class LibraryRepository {
        trackId: track.id, // Use track model ID
        trackTitle: track.title,
        trackArtist: track.artist,
-       trackThumbnailUrl: Value(track.thumbnailUrl),
+       trackThumbnailPath: Value(track.thumbnailPath),
        trackDurationSeconds: Value(track.duration?.inSeconds),
      );
      try {
@@ -124,7 +124,7 @@ class LibraryRepository {
         trackId: track.id,
         trackTitle: track.title,
         trackArtist: track.artist,
-        trackThumbnailUrl: Value(track.thumbnailUrl),
+        trackThumbnailPath: Value(track.thumbnailPath),
         trackDurationSeconds: Value(track.duration?.inSeconds),
       );
       try {
@@ -161,7 +161,7 @@ class LibraryRepository {
         trackId: track.id,
         trackTitle: track.title,
         trackArtist: track.artist,
-        trackThumbnailUrl: Value(track.thumbnailUrl),
+        trackThumbnailPath: Value(track.thumbnailPath),
         trackDurationSeconds: Value(track.duration?.inSeconds),
         // playedAt handled by DB default
         //playedAt: const Value.absent(),

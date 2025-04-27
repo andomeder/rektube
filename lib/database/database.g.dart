@@ -946,13 +946,12 @@ class $PlaylistItemsTable extends PlaylistItems
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _trackThumbnailUrlMeta = const VerificationMeta(
-    'trackThumbnailUrl',
-  );
+  static const VerificationMeta _trackThumbnailPathMeta =
+      const VerificationMeta('trackThumbnailPath');
   @override
-  late final GeneratedColumn<String> trackThumbnailUrl =
+  late final GeneratedColumn<String> trackThumbnailPath =
       GeneratedColumn<String>(
-        'track_thumbnail_url',
+        'track_thumbnail_path',
         aliasedName,
         true,
         type: DriftSqlType.string,
@@ -985,7 +984,7 @@ class $PlaylistItemsTable extends PlaylistItems
     trackId,
     trackTitle,
     trackArtist,
-    trackThumbnailUrl,
+    trackThumbnailPath,
     trackDurationSeconds,
     addedAt,
   ];
@@ -1039,12 +1038,12 @@ class $PlaylistItemsTable extends PlaylistItems
     } else if (isInserting) {
       context.missing(_trackArtistMeta);
     }
-    if (data.containsKey('track_thumbnail_url')) {
+    if (data.containsKey('track_thumbnail_path')) {
       context.handle(
-        _trackThumbnailUrlMeta,
-        trackThumbnailUrl.isAcceptableOrUnknown(
-          data['track_thumbnail_url']!,
-          _trackThumbnailUrlMeta,
+        _trackThumbnailPathMeta,
+        trackThumbnailPath.isAcceptableOrUnknown(
+          data['track_thumbnail_path']!,
+          _trackThumbnailPathMeta,
         ),
       );
     }
@@ -1091,9 +1090,9 @@ class $PlaylistItemsTable extends PlaylistItems
             DriftSqlType.string,
             data['${effectivePrefix}track_artist'],
           )!,
-      trackThumbnailUrl: attachedDatabase.typeMapping.read(
+      trackThumbnailPath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}track_thumbnail_url'],
+        data['${effectivePrefix}track_thumbnail_path'],
       ),
       trackDurationSeconds: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -1123,7 +1122,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
   final String trackId;
   final String trackTitle;
   final String trackArtist;
-  final String? trackThumbnailUrl;
+  final String? trackThumbnailPath;
   final int? trackDurationSeconds;
   final DateTime addedAt;
   const PlaylistItem({
@@ -1132,7 +1131,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
     required this.trackId,
     required this.trackTitle,
     required this.trackArtist,
-    this.trackThumbnailUrl,
+    this.trackThumbnailPath,
     this.trackDurationSeconds,
     required this.addedAt,
   });
@@ -1144,8 +1143,8 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
     map['track_id'] = Variable<String>(trackId);
     map['track_title'] = Variable<String>(trackTitle);
     map['track_artist'] = Variable<String>(trackArtist);
-    if (!nullToAbsent || trackThumbnailUrl != null) {
-      map['track_thumbnail_url'] = Variable<String>(trackThumbnailUrl);
+    if (!nullToAbsent || trackThumbnailPath != null) {
+      map['track_thumbnail_path'] = Variable<String>(trackThumbnailPath);
     }
     if (!nullToAbsent || trackDurationSeconds != null) {
       map['track_duration_seconds'] = Variable<int>(trackDurationSeconds);
@@ -1166,10 +1165,10 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
       trackId: Value(trackId),
       trackTitle: Value(trackTitle),
       trackArtist: Value(trackArtist),
-      trackThumbnailUrl:
-          trackThumbnailUrl == null && nullToAbsent
+      trackThumbnailPath:
+          trackThumbnailPath == null && nullToAbsent
               ? const Value.absent()
-              : Value(trackThumbnailUrl),
+              : Value(trackThumbnailPath),
       trackDurationSeconds:
           trackDurationSeconds == null && nullToAbsent
               ? const Value.absent()
@@ -1189,8 +1188,8 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
       trackId: serializer.fromJson<String>(json['trackId']),
       trackTitle: serializer.fromJson<String>(json['trackTitle']),
       trackArtist: serializer.fromJson<String>(json['trackArtist']),
-      trackThumbnailUrl: serializer.fromJson<String?>(
-        json['trackThumbnailUrl'],
+      trackThumbnailPath: serializer.fromJson<String?>(
+        json['trackThumbnailPath'],
       ),
       trackDurationSeconds: serializer.fromJson<int?>(
         json['trackDurationSeconds'],
@@ -1207,7 +1206,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
       'trackId': serializer.toJson<String>(trackId),
       'trackTitle': serializer.toJson<String>(trackTitle),
       'trackArtist': serializer.toJson<String>(trackArtist),
-      'trackThumbnailUrl': serializer.toJson<String?>(trackThumbnailUrl),
+      'trackThumbnailPath': serializer.toJson<String?>(trackThumbnailPath),
       'trackDurationSeconds': serializer.toJson<int?>(trackDurationSeconds),
       'addedAt': serializer.toJson<DateTime>(addedAt),
     };
@@ -1219,7 +1218,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
     String? trackId,
     String? trackTitle,
     String? trackArtist,
-    Value<String?> trackThumbnailUrl = const Value.absent(),
+    Value<String?> trackThumbnailPath = const Value.absent(),
     Value<int?> trackDurationSeconds = const Value.absent(),
     DateTime? addedAt,
   }) => PlaylistItem(
@@ -1228,10 +1227,10 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
     trackId: trackId ?? this.trackId,
     trackTitle: trackTitle ?? this.trackTitle,
     trackArtist: trackArtist ?? this.trackArtist,
-    trackThumbnailUrl:
-        trackThumbnailUrl.present
-            ? trackThumbnailUrl.value
-            : this.trackThumbnailUrl,
+    trackThumbnailPath:
+        trackThumbnailPath.present
+            ? trackThumbnailPath.value
+            : this.trackThumbnailPath,
     trackDurationSeconds:
         trackDurationSeconds.present
             ? trackDurationSeconds.value
@@ -1248,10 +1247,10 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
           data.trackTitle.present ? data.trackTitle.value : this.trackTitle,
       trackArtist:
           data.trackArtist.present ? data.trackArtist.value : this.trackArtist,
-      trackThumbnailUrl:
-          data.trackThumbnailUrl.present
-              ? data.trackThumbnailUrl.value
-              : this.trackThumbnailUrl,
+      trackThumbnailPath:
+          data.trackThumbnailPath.present
+              ? data.trackThumbnailPath.value
+              : this.trackThumbnailPath,
       trackDurationSeconds:
           data.trackDurationSeconds.present
               ? data.trackDurationSeconds.value
@@ -1268,7 +1267,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
           ..write('trackId: $trackId, ')
           ..write('trackTitle: $trackTitle, ')
           ..write('trackArtist: $trackArtist, ')
-          ..write('trackThumbnailUrl: $trackThumbnailUrl, ')
+          ..write('trackThumbnailPath: $trackThumbnailPath, ')
           ..write('trackDurationSeconds: $trackDurationSeconds, ')
           ..write('addedAt: $addedAt')
           ..write(')'))
@@ -1282,7 +1281,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
     trackId,
     trackTitle,
     trackArtist,
-    trackThumbnailUrl,
+    trackThumbnailPath,
     trackDurationSeconds,
     addedAt,
   );
@@ -1295,7 +1294,7 @@ class PlaylistItem extends DataClass implements Insertable<PlaylistItem> {
           other.trackId == this.trackId &&
           other.trackTitle == this.trackTitle &&
           other.trackArtist == this.trackArtist &&
-          other.trackThumbnailUrl == this.trackThumbnailUrl &&
+          other.trackThumbnailPath == this.trackThumbnailPath &&
           other.trackDurationSeconds == this.trackDurationSeconds &&
           other.addedAt == this.addedAt);
 }
@@ -1306,7 +1305,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
   final Value<String> trackId;
   final Value<String> trackTitle;
   final Value<String> trackArtist;
-  final Value<String?> trackThumbnailUrl;
+  final Value<String?> trackThumbnailPath;
   final Value<int?> trackDurationSeconds;
   final Value<DateTime> addedAt;
   const PlaylistItemsCompanion({
@@ -1315,7 +1314,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
     this.trackId = const Value.absent(),
     this.trackTitle = const Value.absent(),
     this.trackArtist = const Value.absent(),
-    this.trackThumbnailUrl = const Value.absent(),
+    this.trackThumbnailPath = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
     this.addedAt = const Value.absent(),
   });
@@ -1325,7 +1324,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
     required String trackId,
     required String trackTitle,
     required String trackArtist,
-    this.trackThumbnailUrl = const Value.absent(),
+    this.trackThumbnailPath = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
     this.addedAt = const Value.absent(),
   }) : playlistId = Value(playlistId),
@@ -1338,7 +1337,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
     Expression<String>? trackId,
     Expression<String>? trackTitle,
     Expression<String>? trackArtist,
-    Expression<String>? trackThumbnailUrl,
+    Expression<String>? trackThumbnailPath,
     Expression<int>? trackDurationSeconds,
     Expression<PgDateTime>? addedAt,
   }) {
@@ -1348,7 +1347,8 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
       if (trackId != null) 'track_id': trackId,
       if (trackTitle != null) 'track_title': trackTitle,
       if (trackArtist != null) 'track_artist': trackArtist,
-      if (trackThumbnailUrl != null) 'track_thumbnail_url': trackThumbnailUrl,
+      if (trackThumbnailPath != null)
+        'track_thumbnail_path': trackThumbnailPath,
       if (trackDurationSeconds != null)
         'track_duration_seconds': trackDurationSeconds,
       if (addedAt != null) 'added_at': addedAt,
@@ -1361,7 +1361,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
     Value<String>? trackId,
     Value<String>? trackTitle,
     Value<String>? trackArtist,
-    Value<String?>? trackThumbnailUrl,
+    Value<String?>? trackThumbnailPath,
     Value<int?>? trackDurationSeconds,
     Value<DateTime>? addedAt,
   }) {
@@ -1371,7 +1371,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
       trackId: trackId ?? this.trackId,
       trackTitle: trackTitle ?? this.trackTitle,
       trackArtist: trackArtist ?? this.trackArtist,
-      trackThumbnailUrl: trackThumbnailUrl ?? this.trackThumbnailUrl,
+      trackThumbnailPath: trackThumbnailPath ?? this.trackThumbnailPath,
       trackDurationSeconds: trackDurationSeconds ?? this.trackDurationSeconds,
       addedAt: addedAt ?? this.addedAt,
     );
@@ -1395,8 +1395,8 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
     if (trackArtist.present) {
       map['track_artist'] = Variable<String>(trackArtist.value);
     }
-    if (trackThumbnailUrl.present) {
-      map['track_thumbnail_url'] = Variable<String>(trackThumbnailUrl.value);
+    if (trackThumbnailPath.present) {
+      map['track_thumbnail_path'] = Variable<String>(trackThumbnailPath.value);
     }
     if (trackDurationSeconds.present) {
       map['track_duration_seconds'] = Variable<int>(trackDurationSeconds.value);
@@ -1418,7 +1418,7 @@ class PlaylistItemsCompanion extends UpdateCompanion<PlaylistItem> {
           ..write('trackId: $trackId, ')
           ..write('trackTitle: $trackTitle, ')
           ..write('trackArtist: $trackArtist, ')
-          ..write('trackThumbnailUrl: $trackThumbnailUrl, ')
+          ..write('trackThumbnailPath: $trackThumbnailPath, ')
           ..write('trackDurationSeconds: $trackDurationSeconds, ')
           ..write('addedAt: $addedAt')
           ..write(')'))
@@ -1490,13 +1490,12 @@ class $LikedSongsTable extends LikedSongs
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _trackThumbnailUrlMeta = const VerificationMeta(
-    'trackThumbnailUrl',
-  );
+  static const VerificationMeta _trackThumbnailPathMeta =
+      const VerificationMeta('trackThumbnailPath');
   @override
-  late final GeneratedColumn<String> trackThumbnailUrl =
+  late final GeneratedColumn<String> trackThumbnailPath =
       GeneratedColumn<String>(
-        'track_thumbnail_url',
+        'track_thumbnail_path',
         aliasedName,
         true,
         type: DriftSqlType.string,
@@ -1529,7 +1528,7 @@ class $LikedSongsTable extends LikedSongs
     trackId,
     trackTitle,
     trackArtist,
-    trackThumbnailUrl,
+    trackThumbnailPath,
     trackDurationSeconds,
     likedAt,
   ];
@@ -1583,12 +1582,12 @@ class $LikedSongsTable extends LikedSongs
     } else if (isInserting) {
       context.missing(_trackArtistMeta);
     }
-    if (data.containsKey('track_thumbnail_url')) {
+    if (data.containsKey('track_thumbnail_path')) {
       context.handle(
-        _trackThumbnailUrlMeta,
-        trackThumbnailUrl.isAcceptableOrUnknown(
-          data['track_thumbnail_url']!,
-          _trackThumbnailUrlMeta,
+        _trackThumbnailPathMeta,
+        trackThumbnailPath.isAcceptableOrUnknown(
+          data['track_thumbnail_path']!,
+          _trackThumbnailPathMeta,
         ),
       );
     }
@@ -1635,9 +1634,9 @@ class $LikedSongsTable extends LikedSongs
             DriftSqlType.string,
             data['${effectivePrefix}track_artist'],
           )!,
-      trackThumbnailUrl: attachedDatabase.typeMapping.read(
+      trackThumbnailPath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}track_thumbnail_url'],
+        data['${effectivePrefix}track_thumbnail_path'],
       ),
       trackDurationSeconds: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -1667,7 +1666,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
   final String trackId;
   final String trackTitle;
   final String trackArtist;
-  final String? trackThumbnailUrl;
+  final String? trackThumbnailPath;
   final int? trackDurationSeconds;
   final DateTime likedAt;
   const LikedSong({
@@ -1676,7 +1675,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
     required this.trackId,
     required this.trackTitle,
     required this.trackArtist,
-    this.trackThumbnailUrl,
+    this.trackThumbnailPath,
     this.trackDurationSeconds,
     required this.likedAt,
   });
@@ -1688,8 +1687,8 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
     map['track_id'] = Variable<String>(trackId);
     map['track_title'] = Variable<String>(trackTitle);
     map['track_artist'] = Variable<String>(trackArtist);
-    if (!nullToAbsent || trackThumbnailUrl != null) {
-      map['track_thumbnail_url'] = Variable<String>(trackThumbnailUrl);
+    if (!nullToAbsent || trackThumbnailPath != null) {
+      map['track_thumbnail_path'] = Variable<String>(trackThumbnailPath);
     }
     if (!nullToAbsent || trackDurationSeconds != null) {
       map['track_duration_seconds'] = Variable<int>(trackDurationSeconds);
@@ -1710,10 +1709,10 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
       trackId: Value(trackId),
       trackTitle: Value(trackTitle),
       trackArtist: Value(trackArtist),
-      trackThumbnailUrl:
-          trackThumbnailUrl == null && nullToAbsent
+      trackThumbnailPath:
+          trackThumbnailPath == null && nullToAbsent
               ? const Value.absent()
-              : Value(trackThumbnailUrl),
+              : Value(trackThumbnailPath),
       trackDurationSeconds:
           trackDurationSeconds == null && nullToAbsent
               ? const Value.absent()
@@ -1733,8 +1732,8 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
       trackId: serializer.fromJson<String>(json['trackId']),
       trackTitle: serializer.fromJson<String>(json['trackTitle']),
       trackArtist: serializer.fromJson<String>(json['trackArtist']),
-      trackThumbnailUrl: serializer.fromJson<String?>(
-        json['trackThumbnailUrl'],
+      trackThumbnailPath: serializer.fromJson<String?>(
+        json['trackThumbnailPath'],
       ),
       trackDurationSeconds: serializer.fromJson<int?>(
         json['trackDurationSeconds'],
@@ -1751,7 +1750,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
       'trackId': serializer.toJson<String>(trackId),
       'trackTitle': serializer.toJson<String>(trackTitle),
       'trackArtist': serializer.toJson<String>(trackArtist),
-      'trackThumbnailUrl': serializer.toJson<String?>(trackThumbnailUrl),
+      'trackThumbnailPath': serializer.toJson<String?>(trackThumbnailPath),
       'trackDurationSeconds': serializer.toJson<int?>(trackDurationSeconds),
       'likedAt': serializer.toJson<DateTime>(likedAt),
     };
@@ -1763,7 +1762,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
     String? trackId,
     String? trackTitle,
     String? trackArtist,
-    Value<String?> trackThumbnailUrl = const Value.absent(),
+    Value<String?> trackThumbnailPath = const Value.absent(),
     Value<int?> trackDurationSeconds = const Value.absent(),
     DateTime? likedAt,
   }) => LikedSong(
@@ -1772,10 +1771,10 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
     trackId: trackId ?? this.trackId,
     trackTitle: trackTitle ?? this.trackTitle,
     trackArtist: trackArtist ?? this.trackArtist,
-    trackThumbnailUrl:
-        trackThumbnailUrl.present
-            ? trackThumbnailUrl.value
-            : this.trackThumbnailUrl,
+    trackThumbnailPath:
+        trackThumbnailPath.present
+            ? trackThumbnailPath.value
+            : this.trackThumbnailPath,
     trackDurationSeconds:
         trackDurationSeconds.present
             ? trackDurationSeconds.value
@@ -1791,10 +1790,10 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
           data.trackTitle.present ? data.trackTitle.value : this.trackTitle,
       trackArtist:
           data.trackArtist.present ? data.trackArtist.value : this.trackArtist,
-      trackThumbnailUrl:
-          data.trackThumbnailUrl.present
-              ? data.trackThumbnailUrl.value
-              : this.trackThumbnailUrl,
+      trackThumbnailPath:
+          data.trackThumbnailPath.present
+              ? data.trackThumbnailPath.value
+              : this.trackThumbnailPath,
       trackDurationSeconds:
           data.trackDurationSeconds.present
               ? data.trackDurationSeconds.value
@@ -1811,7 +1810,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
           ..write('trackId: $trackId, ')
           ..write('trackTitle: $trackTitle, ')
           ..write('trackArtist: $trackArtist, ')
-          ..write('trackThumbnailUrl: $trackThumbnailUrl, ')
+          ..write('trackThumbnailPath: $trackThumbnailPath, ')
           ..write('trackDurationSeconds: $trackDurationSeconds, ')
           ..write('likedAt: $likedAt')
           ..write(')'))
@@ -1825,7 +1824,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
     trackId,
     trackTitle,
     trackArtist,
-    trackThumbnailUrl,
+    trackThumbnailPath,
     trackDurationSeconds,
     likedAt,
   );
@@ -1838,7 +1837,7 @@ class LikedSong extends DataClass implements Insertable<LikedSong> {
           other.trackId == this.trackId &&
           other.trackTitle == this.trackTitle &&
           other.trackArtist == this.trackArtist &&
-          other.trackThumbnailUrl == this.trackThumbnailUrl &&
+          other.trackThumbnailPath == this.trackThumbnailPath &&
           other.trackDurationSeconds == this.trackDurationSeconds &&
           other.likedAt == this.likedAt);
 }
@@ -1849,7 +1848,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
   final Value<String> trackId;
   final Value<String> trackTitle;
   final Value<String> trackArtist;
-  final Value<String?> trackThumbnailUrl;
+  final Value<String?> trackThumbnailPath;
   final Value<int?> trackDurationSeconds;
   final Value<DateTime> likedAt;
   const LikedSongsCompanion({
@@ -1858,7 +1857,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
     this.trackId = const Value.absent(),
     this.trackTitle = const Value.absent(),
     this.trackArtist = const Value.absent(),
-    this.trackThumbnailUrl = const Value.absent(),
+    this.trackThumbnailPath = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
     this.likedAt = const Value.absent(),
   });
@@ -1868,7 +1867,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
     required String trackId,
     required String trackTitle,
     required String trackArtist,
-    this.trackThumbnailUrl = const Value.absent(),
+    this.trackThumbnailPath = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
     this.likedAt = const Value.absent(),
   }) : userId = Value(userId),
@@ -1881,7 +1880,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
     Expression<String>? trackId,
     Expression<String>? trackTitle,
     Expression<String>? trackArtist,
-    Expression<String>? trackThumbnailUrl,
+    Expression<String>? trackThumbnailPath,
     Expression<int>? trackDurationSeconds,
     Expression<PgDateTime>? likedAt,
   }) {
@@ -1891,7 +1890,8 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
       if (trackId != null) 'track_id': trackId,
       if (trackTitle != null) 'track_title': trackTitle,
       if (trackArtist != null) 'track_artist': trackArtist,
-      if (trackThumbnailUrl != null) 'track_thumbnail_url': trackThumbnailUrl,
+      if (trackThumbnailPath != null)
+        'track_thumbnail_path': trackThumbnailPath,
       if (trackDurationSeconds != null)
         'track_duration_seconds': trackDurationSeconds,
       if (likedAt != null) 'liked_at': likedAt,
@@ -1904,7 +1904,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
     Value<String>? trackId,
     Value<String>? trackTitle,
     Value<String>? trackArtist,
-    Value<String?>? trackThumbnailUrl,
+    Value<String?>? trackThumbnailPath,
     Value<int?>? trackDurationSeconds,
     Value<DateTime>? likedAt,
   }) {
@@ -1914,7 +1914,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
       trackId: trackId ?? this.trackId,
       trackTitle: trackTitle ?? this.trackTitle,
       trackArtist: trackArtist ?? this.trackArtist,
-      trackThumbnailUrl: trackThumbnailUrl ?? this.trackThumbnailUrl,
+      trackThumbnailPath: trackThumbnailPath ?? this.trackThumbnailPath,
       trackDurationSeconds: trackDurationSeconds ?? this.trackDurationSeconds,
       likedAt: likedAt ?? this.likedAt,
     );
@@ -1938,8 +1938,8 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
     if (trackArtist.present) {
       map['track_artist'] = Variable<String>(trackArtist.value);
     }
-    if (trackThumbnailUrl.present) {
-      map['track_thumbnail_url'] = Variable<String>(trackThumbnailUrl.value);
+    if (trackThumbnailPath.present) {
+      map['track_thumbnail_path'] = Variable<String>(trackThumbnailPath.value);
     }
     if (trackDurationSeconds.present) {
       map['track_duration_seconds'] = Variable<int>(trackDurationSeconds.value);
@@ -1961,7 +1961,7 @@ class LikedSongsCompanion extends UpdateCompanion<LikedSong> {
           ..write('trackId: $trackId, ')
           ..write('trackTitle: $trackTitle, ')
           ..write('trackArtist: $trackArtist, ')
-          ..write('trackThumbnailUrl: $trackThumbnailUrl, ')
+          ..write('trackThumbnailPath: $trackThumbnailPath, ')
           ..write('trackDurationSeconds: $trackDurationSeconds, ')
           ..write('likedAt: $likedAt')
           ..write(')'))
@@ -2033,13 +2033,12 @@ class $HistoryTable extends History
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _trackThumbnailUrlMeta = const VerificationMeta(
-    'trackThumbnailUrl',
-  );
+  static const VerificationMeta _trackThumbnailPathMeta =
+      const VerificationMeta('trackThumbnailPath');
   @override
-  late final GeneratedColumn<String> trackThumbnailUrl =
+  late final GeneratedColumn<String> trackThumbnailPath =
       GeneratedColumn<String>(
-        'track_thumbnail_url',
+        'track_thumbnail_path',
         aliasedName,
         true,
         type: DriftSqlType.string,
@@ -2072,7 +2071,7 @@ class $HistoryTable extends History
     trackId,
     trackTitle,
     trackArtist,
-    trackThumbnailUrl,
+    trackThumbnailPath,
     trackDurationSeconds,
     playedAt,
   ];
@@ -2126,12 +2125,12 @@ class $HistoryTable extends History
     } else if (isInserting) {
       context.missing(_trackArtistMeta);
     }
-    if (data.containsKey('track_thumbnail_url')) {
+    if (data.containsKey('track_thumbnail_path')) {
       context.handle(
-        _trackThumbnailUrlMeta,
-        trackThumbnailUrl.isAcceptableOrUnknown(
-          data['track_thumbnail_url']!,
-          _trackThumbnailUrlMeta,
+        _trackThumbnailPathMeta,
+        trackThumbnailPath.isAcceptableOrUnknown(
+          data['track_thumbnail_path']!,
+          _trackThumbnailPathMeta,
         ),
       );
     }
@@ -2178,9 +2177,9 @@ class $HistoryTable extends History
             DriftSqlType.string,
             data['${effectivePrefix}track_artist'],
           )!,
-      trackThumbnailUrl: attachedDatabase.typeMapping.read(
+      trackThumbnailPath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}track_thumbnail_url'],
+        data['${effectivePrefix}track_thumbnail_path'],
       ),
       trackDurationSeconds: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -2210,7 +2209,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
   final String trackId;
   final String trackTitle;
   final String trackArtist;
-  final String? trackThumbnailUrl;
+  final String? trackThumbnailPath;
   final int? trackDurationSeconds;
   final DateTime playedAt;
   const HistoryEntry({
@@ -2219,7 +2218,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
     required this.trackId,
     required this.trackTitle,
     required this.trackArtist,
-    this.trackThumbnailUrl,
+    this.trackThumbnailPath,
     this.trackDurationSeconds,
     required this.playedAt,
   });
@@ -2231,8 +2230,8 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
     map['track_id'] = Variable<String>(trackId);
     map['track_title'] = Variable<String>(trackTitle);
     map['track_artist'] = Variable<String>(trackArtist);
-    if (!nullToAbsent || trackThumbnailUrl != null) {
-      map['track_thumbnail_url'] = Variable<String>(trackThumbnailUrl);
+    if (!nullToAbsent || trackThumbnailPath != null) {
+      map['track_thumbnail_path'] = Variable<String>(trackThumbnailPath);
     }
     if (!nullToAbsent || trackDurationSeconds != null) {
       map['track_duration_seconds'] = Variable<int>(trackDurationSeconds);
@@ -2253,10 +2252,10 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
       trackId: Value(trackId),
       trackTitle: Value(trackTitle),
       trackArtist: Value(trackArtist),
-      trackThumbnailUrl:
-          trackThumbnailUrl == null && nullToAbsent
+      trackThumbnailPath:
+          trackThumbnailPath == null && nullToAbsent
               ? const Value.absent()
-              : Value(trackThumbnailUrl),
+              : Value(trackThumbnailPath),
       trackDurationSeconds:
           trackDurationSeconds == null && nullToAbsent
               ? const Value.absent()
@@ -2276,8 +2275,8 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
       trackId: serializer.fromJson<String>(json['trackId']),
       trackTitle: serializer.fromJson<String>(json['trackTitle']),
       trackArtist: serializer.fromJson<String>(json['trackArtist']),
-      trackThumbnailUrl: serializer.fromJson<String?>(
-        json['trackThumbnailUrl'],
+      trackThumbnailPath: serializer.fromJson<String?>(
+        json['trackThumbnailPath'],
       ),
       trackDurationSeconds: serializer.fromJson<int?>(
         json['trackDurationSeconds'],
@@ -2294,7 +2293,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
       'trackId': serializer.toJson<String>(trackId),
       'trackTitle': serializer.toJson<String>(trackTitle),
       'trackArtist': serializer.toJson<String>(trackArtist),
-      'trackThumbnailUrl': serializer.toJson<String?>(trackThumbnailUrl),
+      'trackThumbnailPath': serializer.toJson<String?>(trackThumbnailPath),
       'trackDurationSeconds': serializer.toJson<int?>(trackDurationSeconds),
       'playedAt': serializer.toJson<DateTime>(playedAt),
     };
@@ -2306,7 +2305,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
     String? trackId,
     String? trackTitle,
     String? trackArtist,
-    Value<String?> trackThumbnailUrl = const Value.absent(),
+    Value<String?> trackThumbnailPath = const Value.absent(),
     Value<int?> trackDurationSeconds = const Value.absent(),
     DateTime? playedAt,
   }) => HistoryEntry(
@@ -2315,10 +2314,10 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
     trackId: trackId ?? this.trackId,
     trackTitle: trackTitle ?? this.trackTitle,
     trackArtist: trackArtist ?? this.trackArtist,
-    trackThumbnailUrl:
-        trackThumbnailUrl.present
-            ? trackThumbnailUrl.value
-            : this.trackThumbnailUrl,
+    trackThumbnailPath:
+        trackThumbnailPath.present
+            ? trackThumbnailPath.value
+            : this.trackThumbnailPath,
     trackDurationSeconds:
         trackDurationSeconds.present
             ? trackDurationSeconds.value
@@ -2334,10 +2333,10 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
           data.trackTitle.present ? data.trackTitle.value : this.trackTitle,
       trackArtist:
           data.trackArtist.present ? data.trackArtist.value : this.trackArtist,
-      trackThumbnailUrl:
-          data.trackThumbnailUrl.present
-              ? data.trackThumbnailUrl.value
-              : this.trackThumbnailUrl,
+      trackThumbnailPath:
+          data.trackThumbnailPath.present
+              ? data.trackThumbnailPath.value
+              : this.trackThumbnailPath,
       trackDurationSeconds:
           data.trackDurationSeconds.present
               ? data.trackDurationSeconds.value
@@ -2354,7 +2353,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
           ..write('trackId: $trackId, ')
           ..write('trackTitle: $trackTitle, ')
           ..write('trackArtist: $trackArtist, ')
-          ..write('trackThumbnailUrl: $trackThumbnailUrl, ')
+          ..write('trackThumbnailPath: $trackThumbnailPath, ')
           ..write('trackDurationSeconds: $trackDurationSeconds, ')
           ..write('playedAt: $playedAt')
           ..write(')'))
@@ -2368,7 +2367,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
     trackId,
     trackTitle,
     trackArtist,
-    trackThumbnailUrl,
+    trackThumbnailPath,
     trackDurationSeconds,
     playedAt,
   );
@@ -2381,7 +2380,7 @@ class HistoryEntry extends DataClass implements Insertable<HistoryEntry> {
           other.trackId == this.trackId &&
           other.trackTitle == this.trackTitle &&
           other.trackArtist == this.trackArtist &&
-          other.trackThumbnailUrl == this.trackThumbnailUrl &&
+          other.trackThumbnailPath == this.trackThumbnailPath &&
           other.trackDurationSeconds == this.trackDurationSeconds &&
           other.playedAt == this.playedAt);
 }
@@ -2392,7 +2391,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
   final Value<String> trackId;
   final Value<String> trackTitle;
   final Value<String> trackArtist;
-  final Value<String?> trackThumbnailUrl;
+  final Value<String?> trackThumbnailPath;
   final Value<int?> trackDurationSeconds;
   final Value<DateTime> playedAt;
   const HistoryCompanion({
@@ -2401,7 +2400,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
     this.trackId = const Value.absent(),
     this.trackTitle = const Value.absent(),
     this.trackArtist = const Value.absent(),
-    this.trackThumbnailUrl = const Value.absent(),
+    this.trackThumbnailPath = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
     this.playedAt = const Value.absent(),
   });
@@ -2411,7 +2410,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
     required String trackId,
     required String trackTitle,
     required String trackArtist,
-    this.trackThumbnailUrl = const Value.absent(),
+    this.trackThumbnailPath = const Value.absent(),
     this.trackDurationSeconds = const Value.absent(),
     this.playedAt = const Value.absent(),
   }) : userId = Value(userId),
@@ -2424,7 +2423,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
     Expression<String>? trackId,
     Expression<String>? trackTitle,
     Expression<String>? trackArtist,
-    Expression<String>? trackThumbnailUrl,
+    Expression<String>? trackThumbnailPath,
     Expression<int>? trackDurationSeconds,
     Expression<PgDateTime>? playedAt,
   }) {
@@ -2434,7 +2433,8 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
       if (trackId != null) 'track_id': trackId,
       if (trackTitle != null) 'track_title': trackTitle,
       if (trackArtist != null) 'track_artist': trackArtist,
-      if (trackThumbnailUrl != null) 'track_thumbnail_url': trackThumbnailUrl,
+      if (trackThumbnailPath != null)
+        'track_thumbnail_path': trackThumbnailPath,
       if (trackDurationSeconds != null)
         'track_duration_seconds': trackDurationSeconds,
       if (playedAt != null) 'played_at': playedAt,
@@ -2447,7 +2447,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
     Value<String>? trackId,
     Value<String>? trackTitle,
     Value<String>? trackArtist,
-    Value<String?>? trackThumbnailUrl,
+    Value<String?>? trackThumbnailPath,
     Value<int?>? trackDurationSeconds,
     Value<DateTime>? playedAt,
   }) {
@@ -2457,7 +2457,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
       trackId: trackId ?? this.trackId,
       trackTitle: trackTitle ?? this.trackTitle,
       trackArtist: trackArtist ?? this.trackArtist,
-      trackThumbnailUrl: trackThumbnailUrl ?? this.trackThumbnailUrl,
+      trackThumbnailPath: trackThumbnailPath ?? this.trackThumbnailPath,
       trackDurationSeconds: trackDurationSeconds ?? this.trackDurationSeconds,
       playedAt: playedAt ?? this.playedAt,
     );
@@ -2481,8 +2481,8 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
     if (trackArtist.present) {
       map['track_artist'] = Variable<String>(trackArtist.value);
     }
-    if (trackThumbnailUrl.present) {
-      map['track_thumbnail_url'] = Variable<String>(trackThumbnailUrl.value);
+    if (trackThumbnailPath.present) {
+      map['track_thumbnail_path'] = Variable<String>(trackThumbnailPath.value);
     }
     if (trackDurationSeconds.present) {
       map['track_duration_seconds'] = Variable<int>(trackDurationSeconds.value);
@@ -2504,7 +2504,7 @@ class HistoryCompanion extends UpdateCompanion<HistoryEntry> {
           ..write('trackId: $trackId, ')
           ..write('trackTitle: $trackTitle, ')
           ..write('trackArtist: $trackArtist, ')
-          ..write('trackThumbnailUrl: $trackThumbnailUrl, ')
+          ..write('trackThumbnailPath: $trackThumbnailPath, ')
           ..write('trackDurationSeconds: $trackDurationSeconds, ')
           ..write('playedAt: $playedAt')
           ..write(')'))
@@ -3494,7 +3494,7 @@ typedef $$PlaylistItemsTableCreateCompanionBuilder =
       required String trackId,
       required String trackTitle,
       required String trackArtist,
-      Value<String?> trackThumbnailUrl,
+      Value<String?> trackThumbnailPath,
       Value<int?> trackDurationSeconds,
       Value<DateTime> addedAt,
     });
@@ -3505,7 +3505,7 @@ typedef $$PlaylistItemsTableUpdateCompanionBuilder =
       Value<String> trackId,
       Value<String> trackTitle,
       Value<String> trackArtist,
-      Value<String?> trackThumbnailUrl,
+      Value<String?> trackThumbnailPath,
       Value<int?> trackDurationSeconds,
       Value<DateTime> addedAt,
     });
@@ -3567,8 +3567,8 @@ class $$PlaylistItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  ColumnFilters<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3636,8 +3636,8 @@ class $$PlaylistItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  ColumnOrderings<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3700,8 +3700,8 @@ class $$PlaylistItemsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  GeneratedColumn<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => column,
   );
 
@@ -3774,7 +3774,7 @@ class $$PlaylistItemsTableTableManager
                 Value<String> trackId = const Value.absent(),
                 Value<String> trackTitle = const Value.absent(),
                 Value<String> trackArtist = const Value.absent(),
-                Value<String?> trackThumbnailUrl = const Value.absent(),
+                Value<String?> trackThumbnailPath = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
                 Value<DateTime> addedAt = const Value.absent(),
               }) => PlaylistItemsCompanion(
@@ -3783,7 +3783,7 @@ class $$PlaylistItemsTableTableManager
                 trackId: trackId,
                 trackTitle: trackTitle,
                 trackArtist: trackArtist,
-                trackThumbnailUrl: trackThumbnailUrl,
+                trackThumbnailPath: trackThumbnailPath,
                 trackDurationSeconds: trackDurationSeconds,
                 addedAt: addedAt,
               ),
@@ -3794,7 +3794,7 @@ class $$PlaylistItemsTableTableManager
                 required String trackId,
                 required String trackTitle,
                 required String trackArtist,
-                Value<String?> trackThumbnailUrl = const Value.absent(),
+                Value<String?> trackThumbnailPath = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
                 Value<DateTime> addedAt = const Value.absent(),
               }) => PlaylistItemsCompanion.insert(
@@ -3803,7 +3803,7 @@ class $$PlaylistItemsTableTableManager
                 trackId: trackId,
                 trackTitle: trackTitle,
                 trackArtist: trackArtist,
-                trackThumbnailUrl: trackThumbnailUrl,
+                trackThumbnailPath: trackThumbnailPath,
                 trackDurationSeconds: trackDurationSeconds,
                 addedAt: addedAt,
               ),
@@ -3883,7 +3883,7 @@ typedef $$LikedSongsTableCreateCompanionBuilder =
       required String trackId,
       required String trackTitle,
       required String trackArtist,
-      Value<String?> trackThumbnailUrl,
+      Value<String?> trackThumbnailPath,
       Value<int?> trackDurationSeconds,
       Value<DateTime> likedAt,
     });
@@ -3894,7 +3894,7 @@ typedef $$LikedSongsTableUpdateCompanionBuilder =
       Value<String> trackId,
       Value<String> trackTitle,
       Value<String> trackArtist,
-      Value<String?> trackThumbnailUrl,
+      Value<String?> trackThumbnailPath,
       Value<int?> trackDurationSeconds,
       Value<DateTime> likedAt,
     });
@@ -3951,8 +3951,8 @@ class $$LikedSongsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  ColumnFilters<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4020,8 +4020,8 @@ class $$LikedSongsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  ColumnOrderings<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4084,8 +4084,8 @@ class $$LikedSongsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  GeneratedColumn<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => column,
   );
 
@@ -4154,7 +4154,7 @@ class $$LikedSongsTableTableManager
                 Value<String> trackId = const Value.absent(),
                 Value<String> trackTitle = const Value.absent(),
                 Value<String> trackArtist = const Value.absent(),
-                Value<String?> trackThumbnailUrl = const Value.absent(),
+                Value<String?> trackThumbnailPath = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
                 Value<DateTime> likedAt = const Value.absent(),
               }) => LikedSongsCompanion(
@@ -4163,7 +4163,7 @@ class $$LikedSongsTableTableManager
                 trackId: trackId,
                 trackTitle: trackTitle,
                 trackArtist: trackArtist,
-                trackThumbnailUrl: trackThumbnailUrl,
+                trackThumbnailPath: trackThumbnailPath,
                 trackDurationSeconds: trackDurationSeconds,
                 likedAt: likedAt,
               ),
@@ -4174,7 +4174,7 @@ class $$LikedSongsTableTableManager
                 required String trackId,
                 required String trackTitle,
                 required String trackArtist,
-                Value<String?> trackThumbnailUrl = const Value.absent(),
+                Value<String?> trackThumbnailPath = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
                 Value<DateTime> likedAt = const Value.absent(),
               }) => LikedSongsCompanion.insert(
@@ -4183,7 +4183,7 @@ class $$LikedSongsTableTableManager
                 trackId: trackId,
                 trackTitle: trackTitle,
                 trackArtist: trackArtist,
-                trackThumbnailUrl: trackThumbnailUrl,
+                trackThumbnailPath: trackThumbnailPath,
                 trackDurationSeconds: trackDurationSeconds,
                 likedAt: likedAt,
               ),
@@ -4261,7 +4261,7 @@ typedef $$HistoryTableCreateCompanionBuilder =
       required String trackId,
       required String trackTitle,
       required String trackArtist,
-      Value<String?> trackThumbnailUrl,
+      Value<String?> trackThumbnailPath,
       Value<int?> trackDurationSeconds,
       Value<DateTime> playedAt,
     });
@@ -4272,7 +4272,7 @@ typedef $$HistoryTableUpdateCompanionBuilder =
       Value<String> trackId,
       Value<String> trackTitle,
       Value<String> trackArtist,
-      Value<String?> trackThumbnailUrl,
+      Value<String?> trackThumbnailPath,
       Value<int?> trackDurationSeconds,
       Value<DateTime> playedAt,
     });
@@ -4329,8 +4329,8 @@ class $$HistoryTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  ColumnFilters<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4398,8 +4398,8 @@ class $$HistoryTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  ColumnOrderings<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4462,8 +4462,8 @@ class $$HistoryTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get trackThumbnailUrl => $composableBuilder(
-    column: $table.trackThumbnailUrl,
+  GeneratedColumn<String> get trackThumbnailPath => $composableBuilder(
+    column: $table.trackThumbnailPath,
     builder: (column) => column,
   );
 
@@ -4532,7 +4532,7 @@ class $$HistoryTableTableManager
                 Value<String> trackId = const Value.absent(),
                 Value<String> trackTitle = const Value.absent(),
                 Value<String> trackArtist = const Value.absent(),
-                Value<String?> trackThumbnailUrl = const Value.absent(),
+                Value<String?> trackThumbnailPath = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
                 Value<DateTime> playedAt = const Value.absent(),
               }) => HistoryCompanion(
@@ -4541,7 +4541,7 @@ class $$HistoryTableTableManager
                 trackId: trackId,
                 trackTitle: trackTitle,
                 trackArtist: trackArtist,
-                trackThumbnailUrl: trackThumbnailUrl,
+                trackThumbnailPath: trackThumbnailPath,
                 trackDurationSeconds: trackDurationSeconds,
                 playedAt: playedAt,
               ),
@@ -4552,7 +4552,7 @@ class $$HistoryTableTableManager
                 required String trackId,
                 required String trackTitle,
                 required String trackArtist,
-                Value<String?> trackThumbnailUrl = const Value.absent(),
+                Value<String?> trackThumbnailPath = const Value.absent(),
                 Value<int?> trackDurationSeconds = const Value.absent(),
                 Value<DateTime> playedAt = const Value.absent(),
               }) => HistoryCompanion.insert(
@@ -4561,7 +4561,7 @@ class $$HistoryTableTableManager
                 trackId: trackId,
                 trackTitle: trackTitle,
                 trackArtist: trackArtist,
-                trackThumbnailUrl: trackThumbnailUrl,
+                trackThumbnailPath: trackThumbnailPath,
                 trackDurationSeconds: trackDurationSeconds,
                 playedAt: playedAt,
               ),

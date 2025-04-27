@@ -117,9 +117,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           // Clip the image
                           borderRadius: BorderRadius.circular(12.0),
                           child:
-                              track.thumbnailUrl != null
+                              track.thumbnailPath != null
                                   ? Image.network(
-                                    track.thumbnailUrl!,
+                                    track.thumbnailPath!,
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (c, e, s) => const Center(

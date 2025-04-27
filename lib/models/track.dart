@@ -6,35 +6,44 @@ class Track extends Equatable {
   final String id;
   final String title;
   final String artist;
-  final String? _originalThumbnailUrl;
+  final String? thumbnailPath;
   final Duration? duration;
-  final String? _originalUrl;
+  final String? url;
 
   const Track({
     required this.id,
     required this.title,
     required this.artist,
-    String?thumbnailUrl,
+    this.thumbnailPath,
     this.duration,
-    String? url,
-  }): _originalThumbnailUrl = thumbnailUrl,
-        _originalUrl = url;
+    this.url,
+  });
 
-  String get thumbnailUrl => rewritePipedUrlForLocalDev(_originalThumbnailUrl);
-  String get url => rewritePipedUrlForLocalDev(_originalUrl);
+  //String get thumbnailUrl => rewritePipedUrlForLocalDev(_originalThumbnailUrl);
+  //String get url => rewritePipedUrlForLocalDev(_originalUrl);
 
   factory Track.fromJson(Map<String, dynamic> json) {
     final rawUrl = json['url'] as String;
-    final thumbnailUrl = json['thumbnail'] as String; // Added
-    final uri = Uri.parse(rawUrl);
-    final videoId = uri.queryParameters['v'] ?? json['id'] as String? ?? 'unknown_id_${DateTime.now().millisecondsSinceEpoch}';
+    String? thumbnailPathOnly;
+    final originalThumbnailUrl = json['thumbnail'] as String; // Added
+
+    if (originalThumbnailUrl != null) {
+      try {
+        final thumbUri = Uri.parse(originalThumbnailUrl);
+        thumbnailPathOnly = thumbUri.path + (thumbUri.hasQuery ? '?${thumbUri.query}' : '');
+      } catch (_) {
+        thumbnailPathOnly = null;
+      }
+    }
+    final uri = rawUrl != null ? Uri.tryParse(rawUrl) : null;
+    final videoId = uri?.queryParameters['v'] ?? json['id'] as String? ?? 'unknown_id_${DateTime.now().millisecondsSinceEpoch}';
 
     return Track(
       id: videoId,
-      title: json['title'] as String,
-      artist: json['uploaderName'] as String,
+      title: json['title'] as String? ?? 'Unknown Title',
+      artist: json['uploaderName'] as String? ?? 'Unknown Artist',
       //thumbnailUrl: json['thumbnail'] as String,
-      thumbnailUrl: thumbnailUrl,
+      thumbnailPath: thumbnailPathOnly,
       duration: json['duration'] != null
           ? Duration(seconds: json['duration'] as int)
           : null, 
@@ -59,11 +68,21 @@ class Track extends Equatable {
       throw ArgumentError('Could not extract video ID from URL: ${item.url}');
     }
 
+    String? thumbnailPathOnly;
+    if (stream.thumbnail != null) {
+      try {
+        final thumbUri = Uri.parse(stream.thumbnail!);
+        thumbnailPathOnly = thumbUri.path + (thumbUri.hasQuery ? '?${thumbUri.query}' : '');
+      } catch (_) {
+        thumbnailPathOnly = null;
+      }
+    }
+
     return Track(
       id: videoId,
       title: stream.title,
       artist: stream.uploaderName,
-      thumbnailUrl: stream.thumbnail,
+      thumbnailPath: thumbnailPathOnly,
       duration: stream.duration,
       url: item.url,
     );
@@ -71,5 +90,5 @@ class Track extends Equatable {
   
   
   @override
-  List<Object?> get props => [id, title, artist, thumbnailUrl, duration, url];
+  List<Object?> get props => [id, title, artist, thumbnailPath, duration, url];
 }

@@ -16,7 +16,7 @@ class History extends Table {
   // Store metadata
   TextColumn get trackTitle => text().named('track_title')();
   TextColumn get trackArtist => text().named('track_artist')();
-  TextColumn get trackThumbnailUrl => text().named('track_thumbnail_url').nullable()();
+  TextColumn get trackThumbnailPath => text().named('track_thumbnail_path').nullable()();
   IntColumn get trackDurationSeconds => integer().named('track_duration_seconds').nullable()();
 
   // Store the timestamp when it was played
