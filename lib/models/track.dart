@@ -25,7 +25,7 @@ class Track extends Equatable {
 
   factory Track.fromJson(Map<String, dynamic> json) {
     final rawUrl = json['url'] as String;
-
+    final thumbnailUrl = json['thumbnail'] as String; // Added
     final uri = Uri.parse(rawUrl);
     final videoId = uri.queryParameters['v'] ?? json['id'] as String? ?? 'unknown_id_${DateTime.now().millisecondsSinceEpoch}';
 
@@ -33,7 +33,8 @@ class Track extends Equatable {
       id: videoId,
       title: json['title'] as String,
       artist: json['uploaderName'] as String,
-      thumbnailUrl: json['thumbnail'] as String,
+      //thumbnailUrl: json['thumbnail'] as String,
+      thumbnailUrl: thumbnailUrl,
       duration: json['duration'] != null
           ? Duration(seconds: json['duration'] as int)
           : null, 

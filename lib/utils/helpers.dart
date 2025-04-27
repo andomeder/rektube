@@ -24,7 +24,7 @@ String rewritePipedUrlForLocalDev(String? originalUrl) {
 
 
   String ngrokHost = dotenv.env['NGROK_HOST']!; // The hostname used by ngrok
-  const int ngrokPort = 80; // or null if using HTTPS default 443
+  const int ngrokPort = 443; // or null if using HTTPS default 443
 
 
   //const String localForwardHost = '127.0.0.1'; // Use localhost/127.0.0.1 for adb reverse
@@ -36,7 +36,7 @@ String rewritePipedUrlForLocalDev(String? originalUrl) {
     if (uri.host == internalProxyHost) {
       // Replace host and port
       final newUri = uri.replace(
-        scheme: 'http', // Assuming local dev is http
+        scheme: 'https', // Assuming local dev is http
         //host: localForwardHost,
         host: ngrokHost,
         //port: localForwardPort,
