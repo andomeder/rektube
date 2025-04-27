@@ -27,6 +27,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
   void initState() {
     super.initState();
     playerController = Get.find<PlayerController>();
+    // Initialize slider based on current position
+    _sliderValue = playerController.position.value.inSeconds.toDouble();
 
     // Listen to position changes ONLY when not seeking
     playerController.position.stream.listen((position) {
@@ -55,296 +57,272 @@ class _PlayerScreenState extends State<PlayerScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Obx(() {
-        // Still observe overall state changes
-        final track = playerController.currentTrack.value;
-        final isPlaying = playerController.isPlaying.value;
-        final duration = playerController.duration.value;
-
-        if (track == null) {
-          return const Center(child: Text("No track selected."));
-        }
-
-        // Calculate max value for slider (use 1.0 if duration is unknown/zero)
-        final double maxSliderValue =
-            duration > Duration.zero ? duration.inSeconds.toDouble() : 1.0;
-        // Ensure current slider value doesn't exceed max duration when duration becomes available
-        if (_sliderValue > maxSliderValue) {
-          _sliderValue = maxSliderValue;
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Top Spacer or Album Art Area
-              Column(
+      body: SingleChildScrollView(
+        child: Obx(() {
+          // Still observe overall state changes
+          final track = playerController.currentTrack.value;
+          final isPlaying = playerController.isPlaying.value;
+          final duration = playerController.duration.value;
+        
+          if (track == null) {
+            return const Center(
+              heightFactor: 5.0,
+              child: Text("No track selected."));
+          }
+        
+          // Calculate max value for slider (use 1.0 if duration is unknown/zero)
+          final double maxSliderValue =
+              duration > Duration.zero ? duration.inSeconds.toDouble() : 1.0;
+          // Ensure current slider value doesn't exceed max duration when duration becomes available
+          if (_sliderValue > maxSliderValue) {
+            _sliderValue = maxSliderValue;
+          }
+        
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom * 100),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    height: MediaQuery.of(context).size.width * 0.7,
-                    margin: const EdgeInsets.only(bottom: 30),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
+                  // Top Spacer or Album Art Area
+                  Column(
+                    children: [
+                      //SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        height: MediaQuery.of(context).size.width * 0.7,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
+                        child: ClipRRect(
+                          // Clip the image
+                          borderRadius: BorderRadius.circular(12.0),
+                          child:
+                              track.thumbnailUrl != null
+                                  ? Image.network(
+                                    track.thumbnailUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (c, e, s) => const Center(
+                                          child: Icon(Icons.music_note, size: 80),
+                                        ),
+                                    loadingBuilder:
+                                        (c, w, p) =>
+                                            p == null
+                                                ? w
+                                                : const Center(
+                                                  child: LoadingIndicator(),
+                                                ),
+                                  )
+                                  : const Center(
+                                    child: Icon(Icons.music_note, size: 80),
+                                  ),
+                        ),
+                      ),
+                      Text(
+                        track.title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        track.artist,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 15),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          // Watch tje provider that checks if the current track is selected
+                          final isLikedAsync = ref.watch(
+                            isCurrentTrackLikedProvider,
+                          );
+                          final userId =
+                              ref.watch(authControllerProvider).valueOrNull?.id;
+                          final track = playerController.currentTrack.value;
+                      
+                          return IconButton(
+                             iconSize: 30,
+                             icon: isLikedAsync.when(
+                               data: (isLiked) => Icon(
+                                 isLiked ? Icons.favorite : Icons.favorite_border,
+                                 color: isLiked ? theme.colorScheme.primary : Colors.grey,
+                               ),
+                               loading: () => const Icon(Icons.favorite_border, color: Colors.grey),
+                               error: (e, s) {
+                                    print("Error watching isCurrentTrackLikedProvider: $e");
+                                    return const Icon(Icons.favorite_border, color: Colors.grey);
+                               }
+                             ),
+                             onPressed: (userId != null && track != null) ? () async {
+                               final libraryRepo = ref.read(libraryRepositoryProvider);
+                               final currentlyLiked = isLikedAsync.value ?? false;
+                               try {
+                                 if (currentlyLiked) {
+                                   await libraryRepo.unlikeSong(userId, track.id);
+                                 } else {
+                                   await libraryRepo.likeSong(userId, track);
+                                 }
+                                 ref.invalidate(isCurrentTrackLikedProvider);
+                                 ref.invalidate(likedSongsStreamProvider);
+                               } catch (e) {
+                                 showSnackbar("Error", "Could not update like status.", isError: true);
+                               }
+                             } : null,
+                           );
+                         }),
                       ],
                     ),
-                    child: ClipRRect(
-                      // Clip the image
-                      borderRadius: BorderRadius.circular(12.0),
-                      child:
-                          track.thumbnailUrl != null
-                              ? Image.network(
-                                track.thumbnailUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder:
-                                    (c, e, s) => const Center(
-                                      child: Icon(Icons.music_note, size: 80),
-                                    ),
-                                loadingBuilder:
-                                    (c, w, p) =>
-                                        p == null
-                                            ? w
-                                            : const Center(
-                                              child: LoadingIndicator(),
-                                            ),
-                              )
-                              : const Center(
-                                child: Icon(Icons.music_note, size: 80),
-                              ),
-                    ),
-                  ),
-                  Text(
-                    track.title,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    track.artist,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 20),
-                  Consumer(
-                    builder: (context, ref, child) {
-                      // Watch tje provider that checks if the current track is selected
-                      final isLikedAsync = ref.watch(
-                        isCurrentTrackLikedProvider,
-                      );
-                      final userId =
-                          ref.watch(authControllerProvider).valueOrNull?.id;
-                      final track = playerController.currentTrack.value;
-
-                      return IconButton(
-                        iconSize: 30,
-                        onPressed:
-                            (userId != null && track != null)
-                                ? () async {
-                                  final libraryRepo = ref.read(
-                                    libraryRepositoryProvider,
-                                  );
-                                  final currentyLiked =
-                                      isLikedAsync.value ??
-                                      false; // get current liked state safely
-                                  try {
-                                    if (currentyLiked) {
-                                      await libraryRepo.unlikeSong(
-                                        userId,
-                                        track.id,
-                                      );
-                                    } else {
-                                      await libraryRepo.likeSong(userId, track);
-                                    }
-                                    // Invalidate provider to refresh liked status
-                                    ref.invalidate(isCurrentTrackLikedProvider);
-                                    // Also invalidate library screen data if it shows liked songs list
-                                    ref.invalidate(likedSongsStreamProvider);
-                                  } catch (e) {
-                                    showSnackbar(
-                                      "Error",
-                                      "Could not update like status.",
-                                      isError: true,
-                                    );
-                                  }
-                                }
-                                : null, // Disable if no user/track
-                        icon: isLikedAsync.when(
-                          // Show filed heart when liked
-                          data:
-                              (isLiked) => Icon(
-                                isLiked
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color:
-                                    isLiked
-                                        ? theme.colorScheme.primary
-                                        : Colors.grey,
-                              ),
-                          loading:
-                              () => const Icon(
-                                Icons.favorite_border,
-                                color: Colors.grey,
-                              ),
-                          error:
-                              (e, s) => const Icon(
-                                Icons.favorite_border,
-                                color: Colors.grey,
-                              ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Seek Bar and Time Labels
-              Column(
-                children: [
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 7.0,
-                      ),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 15.0,
-                      ),
-                      trackHeight: 3.0,
-                    ),
-                    child: Slider(
-                      value: _sliderValue.clamp(0.0, maxSliderValue),
-                      min: 0.0,
-                      max: maxSliderValue,
-                      activeColor: theme.colorScheme.primary,
-                      inactiveColor: Colors.grey.withOpacity(0.4),
-                      onChangeStart: (value) {
-                        setState(() {
-                          _isSeeking = true; // Start seeking
-                        });
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          _sliderValue =
-                              value; // Update local slider value immediately
-                        });
-                      },
-                      onChangeEnd: (value) {
-                        // When user releases slider, seek the player
-                        playerController.seek(Duration(seconds: value.toInt()));
-                        // Short delay before resuming stream updates to avoid jitter
-                        Future.delayed(const Duration(milliseconds: 200), () {
-                          if (mounted) {
-                            // Check if widget is still mounted
-                            setState(() {
-                              _isSeeking = false; // Stop seeking
-                            });
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _formatDuration(
-                            Duration(seconds: _sliderValue.toInt()),
+                      
+                  // Seek Bar and Time Labels
+                  Column(
+                    children: [
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 7.0,
                           ),
-                          style: theme.textTheme.bodySmall,
+                          overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: 15.0,
+                          ),
+                          trackHeight: 3.0,
                         ),
-                        Text(
-                          _formatDuration(duration),
-                          style: theme.textTheme.bodySmall,
+                        child: Slider(
+                          value: _sliderValue.clamp(0.0, maxSliderValue),
+                          min: 0.0,
+                          max: maxSliderValue,
+                          activeColor: theme.colorScheme.primary,
+                          inactiveColor: Colors.grey.withOpacity(0.4),
+                          onChangeStart: (value) {
+                            setState(() {
+                              _isSeeking = true; // Start seeking
+                            });
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              _sliderValue =
+                                  value; // Update local slider value immediately
+                            });
+                          },
+                          onChangeEnd: (value) {
+                            // When user releases slider, seek the player
+                            playerController.seek(Duration(seconds: value.toInt()));
+                            // Short delay before resuming stream updates to avoid jitter
+                            Future.delayed(const Duration(milliseconds: 200), () {
+                              if (mounted) {
+                                // Check if widget is still mounted
+                                setState(() {
+                                  _isSeeking = false; // Stop seeking
+                                });
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _formatDuration(
+                                Duration(seconds: _sliderValue.toInt()),
+                              ),
+                              style: theme.textTheme.bodySmall,
+                            ),
+                            Text(
+                              _formatDuration(duration),
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      //const SizedBox(height: 10),
+                    ],
+                  ),
+                      
+                  // Playback Controls
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        // TODO: Add Shuffle Button
+                        IconButton(
+                          iconSize: 28,
+                          icon: const Icon(Icons.shuffle),
+                          color: Colors.grey,
+                          onPressed: () {
+                            Get.snackbar("Info", "Shuffle not implemented");
+                          },
+                        ),
+                        // TODO: Add Previous Button
+                        IconButton(
+                          iconSize: 40,
+                          icon: const Icon(Icons.skip_previous_rounded),
+                          color: Colors.grey,
+                          onPressed: () {
+                            Get.snackbar("Info", "Previous not implemented");
+                          },
+                        ),
+                        // Play/Pause Button
+                        IconButton(
+                          iconSize: 70,
+                          icon: Icon(
+                            isPlaying
+                                ? Icons.pause_circle_filled_rounded
+                                : Icons.play_circle_filled_rounded,
+                          ),
+                          color: theme.colorScheme.primary,
+                          onPressed: playerController.playPause,
+                        ),
+                        // TODO: Add Next Button
+                        IconButton(
+                          iconSize: 40,
+                          icon: const Icon(Icons.skip_next_rounded),
+                          color: Colors.grey,
+                          onPressed: () {
+                            Get.snackbar("Info", "Next not implemented");
+                          },
+                        ),
+                        // TODO: Add Repeat Button
+                        IconButton(
+                          iconSize: 28,
+                          icon: const Icon(Icons.repeat),
+                          color: Colors.grey,
+                          onPressed: () {
+                            Get.snackbar("Info", "Repeat not implemented");
+                          },
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  //SizedBox(
+                    //height: MediaQuery.of(context).size.height * 0.05,
+                  //), // Bottom padding
                 ],
               ),
-
-              // Playback Controls
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // TODO: Add Shuffle Button
-                    IconButton(
-                      iconSize: 28,
-                      icon: const Icon(Icons.shuffle),
-                      color: Colors.grey,
-                      onPressed: () {
-                        Get.snackbar("Info", "Shuffle not implemented");
-                      },
-                    ),
-                    // TODO: Add Previous Button
-                    IconButton(
-                      iconSize: 40,
-                      icon: const Icon(Icons.skip_previous_rounded),
-                      color: Colors.grey,
-                      onPressed: () {
-                        Get.snackbar("Info", "Previous not implemented");
-                      },
-                    ),
-                    // Play/Pause Button
-                    IconButton(
-                      iconSize: 70,
-                      icon: Icon(
-                        isPlaying
-                            ? Icons.pause_circle_filled_rounded
-                            : Icons.play_circle_filled_rounded,
-                      ),
-                      color: theme.colorScheme.primary,
-                      onPressed: playerController.playPause,
-                    ),
-                    // TODO: Add Next Button
-                    IconButton(
-                      iconSize: 40,
-                      icon: const Icon(Icons.skip_next_rounded),
-                      color: Colors.grey,
-                      onPressed: () {
-                        Get.snackbar("Info", "Next not implemented");
-                      },
-                    ),
-                    // TODO: Add Repeat Button
-                    IconButton(
-                      iconSize: 28,
-                      icon: const Icon(Icons.repeat),
-                      color: Colors.grey,
-                      onPressed: () {
-                        Get.snackbar("Info", "Repeat not implemented");
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.05,
-              ), // Bottom padding
-            ],
-          ),
-        );
-      }),
+            ),
+          );
+        }),
+      ),
     );
   }
 }
