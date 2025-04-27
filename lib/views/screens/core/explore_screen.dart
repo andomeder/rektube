@@ -96,27 +96,31 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: "Search songs, artists...",
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.clear, size: 20),
-              onPressed: () {
-                _searchController.clear();
-                ref.read(searchQueryProvider.notifier).state = '';
-                ref
-                    .read(searchResultsProvider.notifier)
-                    .state = const AsyncValue.data([]);
-              },
+        title: Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: "Search songs, artists...",
+              border: InputBorder.none,
+              isDense: true,
+              prefixIcon: Icon(Icons.search_rounded),
+              contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.clear, size: 20),
+                onPressed: () {
+                  _searchController.clear();
+                  ref.read(searchQueryProvider.notifier).state = '';
+                  ref
+                      .read(searchResultsProvider.notifier)
+                      .state = const AsyncValue.data([]);
+                },
+              ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            onSubmitted: (query) => _perfomSearch(query),
+            textInputAction: TextInputAction.search,
           ),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          onSubmitted: (query) => _perfomSearch(query),
-          textInputAction: TextInputAction.search,
         ),
       ),
       body: Column(
