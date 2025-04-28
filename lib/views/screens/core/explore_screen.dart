@@ -8,13 +8,10 @@ import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
 import 'package:rektube/views/widgets/core/track_list_item.dart';
 
-//Provider to hold the search results state
 final exploreContentProvider = StateProvider<AsyncValue<List<Track>>>((ref) {
-  // Default to an empty data state
   return const AsyncValue.loading();
 });
 
-// Provider to hold the current search query state
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
 class ExploreScreen extends ConsumerStatefulWidget {
@@ -30,15 +27,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   @override
   void initState() {
     super.initState();
-    // Optional: Load trending on initial load?
-    // Future.microtask(() => _fetchTrending());
 
-    // Sync text field with state provider if needed elsewhere
     _searchController.text = ref.read(searchQueryProvider);
     if (_searchController.text.isEmpty) {
       Future.microtask(() => _fetchTrending());
     } else {
-      // If search query exists from previous state, trigger search immediately
       Future.microtask(() => _performSearch(_searchController.text));
     }
   }
@@ -55,16 +48,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       return;
     }
 
-    //Update query state
     ref.read(searchQueryProvider.notifier).state = query;
 
     //Set loading state for results
-    ref.read(exploreContentProvider.notifier).state = const AsyncValue.loading();
+    ref.read(exploreContentProvider.notifier).state =
+        const AsyncValue.loading();
 
     try {
       final repository = ref.read(pipedRepositoryProvider);
       final results = await repository.searchStreams(query);
-      ref.read(exploreContentProvider.notifier).state = AsyncValue.data(results);
+      ref.read(exploreContentProvider.notifier).state = AsyncValue.data(
+        results,
+      );
     } catch (error, stackTrace) {
       ref.read(exploreContentProvider.notifier).state = AsyncValue.error(
         error,
@@ -75,12 +70,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   // Fetch trending
   Future<void> _fetchTrending() async {
-    ref.read(exploreContentProvider.notifier).state = const AsyncValue.loading();
+    ref.read(exploreContentProvider.notifier).state =
+        const AsyncValue.loading();
 
     try {
       final repository = ref.read(pipedRepositoryProvider);
       final results = await repository.getTrending();
-      ref.read(exploreContentProvider.notifier).state = AsyncValue.data(results);
+      ref.read(exploreContentProvider.notifier).state = AsyncValue.data(
+        results,
+      );
     } catch (error, stackTrace) {
       ref.read(exploreContentProvider.notifier).state = AsyncValue.error(
         error,
@@ -91,7 +89,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final exploreContent= ref.watch(exploreContentProvider);
+    final exploreContent = ref.watch(exploreContentProvider);
     bool isSearching = ref.watch(searchQueryProvider).isNotEmpty;
 
     return Scaffold(
@@ -130,14 +128,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           Expanded(
             child: exploreContent.when(
               data: (tracks) {
-                 // Show trending title only when not searching
-                 final title = isSearching ? "Search Results" : "Trending";
-                 if (tracks.isEmpty && isSearching) {
-                   return const Center(child: Text("No results found."));
-                 } else if (tracks.isEmpty && !isSearching) {
-                    return const Center(child: Text("Could not load trending content."));
-                 }
-
+                // Show trending title only when not searching
+                final title = isSearching ? "Search Results" : "Trending";
+                if (tracks.isEmpty && isSearching) {
+                  return const Center(child: Text("No results found."));
+                } else if (tracks.isEmpty && !isSearching) {
+                  return const Center(
+                    child: Text("Could not load trending content."),
+                  );
+                }
 
                 // Display results
                 return Column(
@@ -145,26 +144,42 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(title, style: Theme.of(context).textTheme.headlineSmall),),
-                  
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: tracks.length,
-                      itemBuilder: (context, index) {
-                        final track = tracks[index];
-                        return TrackListItem(
-                          track: track,
-                          onTap: () {
-                            // TODO: Implement Playback (Phase 5)
-                            print("Tapped on track: ${track.title}");
-                            final playerController = Get.find<PlayerController>();
-                            playerController.play(track, ref);
-                            Get.snackbar("Playback", "Playing ${track.title}");
-                          },
-                        );
-                      },
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
-                  ),
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: tracks.length,
+                        itemBuilder: (context, index) {
+                          final track = tracks[index];
+                          return TrackListItem(
+                            track: track,
+                            onTap: () {
+                              print("Tapped on track: ${track.title}");
+                              final playerController =
+                                  Get.find<PlayerController>();
+                              final currentList =
+                                  ref.read(exploreContentProvider).value ?? [];
+                              final tappedIndex = currentList.indexWhere(
+                                (t) => t.id == track.id,
+                              );
+                              if (tappedIndex != -1) {
+                                playerController.loadQueue(
+                                  currentList,
+                                  startIndex: tappedIndex,
+                                );
+                              } else {
+                                playerController.play(track, ref);
+                              }
+                              // Get.snackbar("Playback", "Playing ${track.title}"); 
+                            },
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 );
               },

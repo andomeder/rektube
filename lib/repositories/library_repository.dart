@@ -1,21 +1,16 @@
-// lib/repositories/library_repository.dart
-import 'package:drift/drift.dart'; // For Value()
+import 'package:drift/drift.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rektube/database/daos/history_dao.dart';
 import 'package:rektube/database/daos/liked_song_dao.dart';
 import 'package:rektube/database/daos/playlist_dao.dart';
 import 'package:rektube/database/daos/playlist_item_dao.dart';
-import 'package:rektube/database/database.dart'; // For data classes (Playlist, PlaylistItem, etc)
-import 'package:rektube/models/track.dart' as model_track; // Use alias
-import 'package:rektube/providers/database_providers.dart'; // Import DAO providers
+import 'package:rektube/database/database.dart'; 
+import 'package:rektube/models/track.dart' as model_track; 
+import 'package:rektube/providers/database_providers.dart'; 
 import 'package:rektube/utils/exceptions.dart';
-
-// Define state classes if needed for complex return types
-// e.g., PlaylistWithItems { Playlist playlist; List<PlaylistItem> items; }
 
 class LibraryRepository {
   final Ref _ref;
-  // DAOs obtained via ref
   late final PlaylistDao _playlistDao = _ref.read(playlistDaoProvider);
   late final PlaylistItemDao _playlistItemDao = _ref.read(playlistItemDaoProvider);
   late final LikedSongDao _likedSongDao = _ref.read(likedSongDaoProvider);
@@ -23,7 +18,7 @@ class LibraryRepository {
 
   LibraryRepository(this._ref);
 
-  // --- Playlists ---
+  // Playlists 
   Stream<List<Playlist>> watchUserPlaylists(int userId) {
     try {
       return _playlistDao.watchUserPlaylists(userId);
@@ -43,7 +38,6 @@ class LibraryRepository {
     );
     try {
       final newId = await _playlistDao.createPlaylist(companion);
-      // Fetch the created playlist to return the full object
       final newPlaylist = await (_playlistDao.select(_playlistDao.playlists)..where((p) => p.id.equals(newId))).getSingle();
       return newPlaylist;
     } catch (e) {
@@ -54,7 +48,6 @@ class LibraryRepository {
 
   Future<void> deletePlaylist(int playlistId) async {
     try {
-      // Must delete items first due to foreign key constraint (unless ON DELETE CASCADE is used effectively)
       await _playlistItemDao.removeAllTracksForPlaylist(playlistId);
       await _playlistDao.deletePlaylist(playlistId);
     } catch (e) {
@@ -75,7 +68,7 @@ class LibraryRepository {
   Future<void> addTrackToPlaylist(int playlistId, model_track.Track track) async {
      final companion = PlaylistItemsCompanion.insert(
        playlistId: playlistId,
-       trackId: track.id, // Use track model ID
+       trackId: track.id,
        trackTitle: track.title,
        trackArtist: track.artist,
        trackThumbnailPath: Value(track.thumbnailPath),
@@ -99,7 +92,7 @@ class LibraryRepository {
     }
 
 
-  // --- Liked Songs ---
+  //  Liked Songs
    Stream<List<LikedSong>> watchLikedSongs(int userId) {
      try {
         return _likedSongDao.watchLikedSongs(userId);
@@ -114,7 +107,7 @@ class LibraryRepository {
         return await _likedSongDao.isSongLiked(userId, trackId);
       } catch (e) {
          print("Error checking if song is liked: $e");
-         return false; // Assume not liked on error
+         return false;
       }
    }
 
@@ -130,7 +123,6 @@ class LibraryRepository {
       try {
          await _likedSongDao.likeSong(companion);
       } catch (e) {
-         // Handle potential UNIQUE constraint error if needed, though insertOrIgnore handles it
          print("Error liking song: $e");
          throw DatabaseException("Could not like song.");
       }
@@ -145,7 +137,7 @@ class LibraryRepository {
        }
    }
 
-  // --- History ---
+  // History 
   Stream<List<HistoryEntry>> watchHistory(int userId, {int limit = 50}) {
      try {
         return _historyDao.watchRecentHistory(userId, limit: limit);
@@ -163,14 +155,12 @@ class LibraryRepository {
         trackArtist: track.artist,
         trackThumbnailPath: Value(track.thumbnailPath),
         trackDurationSeconds: Value(track.duration?.inSeconds),
-        // playedAt handled by DB default
         //playedAt: const Value.absent(),
       );
       try {
         await _historyDao.logPlayback(companion);
       } catch (e) {
          print("Error logging playback: $e");
-         // Don't throw, logging failure isn't critical usually
          // throw DatabaseException("Could not log playback.");
       }
   }

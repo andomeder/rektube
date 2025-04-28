@@ -1,4 +1,3 @@
-// lib/controllers/settings/theme_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -7,7 +6,7 @@ class ThemeController extends GetxController {
   final _box = GetStorage();
   final _key = 'isDarkMode';
 
-  // Make theme mode reactive
+
   final Rx<ThemeMode> _themeMode = ThemeMode.system.obs;
   ThemeMode get themeMode => _themeMode.value;
 
@@ -33,7 +32,6 @@ class ThemeController extends GetxController {
      print("Theme saved: ${themeMode.toString()}");
   }
 
-  // Toggle theme
   void toggleTheme() {
     final bool isCurrentlyDark = _themeMode.value == ThemeMode.dark;
     _saveThemeMode(!isCurrentlyDark);

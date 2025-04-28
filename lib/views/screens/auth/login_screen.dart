@@ -21,7 +21,6 @@ class LoginScreen extends ConsumerWidget {
     //String username = store.read("username") ?? "";
     //String password = store.read("password") ?? "";
 
-    // Using container state for prefill
     TextEditingController userNameController = TextEditingController(
       text: loginController.username.value,
     );

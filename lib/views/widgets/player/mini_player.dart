@@ -11,7 +11,6 @@ class MiniPlayer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Find the PlayerController instance registered with GetX
     final PlayerController playerController = Get.find<PlayerController>();
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
@@ -24,14 +23,13 @@ class MiniPlayer extends ConsumerWidget {
       final Duration duration = playerController.duration.value;
       
 
-      // If no track is loading/playing, display nothing (or an empty container)
       if (currentTrack == null) {
         return const SizedBox.shrink();
       }
 
       final fullThumbnailUrl = currentTrack.thumbnailPath != null ? '$pipedInstanceUrl${currentTrack.thumbnailPath}' : null;
 
-      //Calculate progress (handle division by zero)
+      //Calculate progress
       final double progress =
           (duration.inMilliseconds > 0)
               ? (position.inMilliseconds / duration.inMilliseconds).clamp(
@@ -51,7 +49,6 @@ class MiniPlayer extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Optional: Linear progress inidcator at the top
               if (duration > Duration.zero)
                 LinearProgressIndicator(
                   value: progress,
@@ -85,7 +82,7 @@ class MiniPlayer extends ConsumerWidget {
                                 ),
                       ),
                     ),
-                    //Track Info (Title & Artist) - Takes available space
+                    //Track Info (Title & Artist)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -124,7 +121,6 @@ class MiniPlayer extends ConsumerWidget {
                       ),
                       onPressed: playerController.playPause,
                     ),
-                    // Optional: Close/Stop Button?
                     IconButton(
                       icon: Icon(Icons.close, size: 24),
                       onPressed: playerController.stop,

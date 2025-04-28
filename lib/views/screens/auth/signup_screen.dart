@@ -123,20 +123,16 @@ class SignUpScreen extends ConsumerWidget {
                     () => rektubeButton(
                       // Signup Button
                       () {
-                        // --- Add Debug Print ---
                         print("Signup button pressed.");
-                        // Validate form using the key
                         final isValid = formKey.currentState?.validate() ?? false;
                         print("Form validation result: $isValid");
-                        // --- End Debug Print ---
 
-                        // Validate form
                         if (isValid) {
                           signUpController.signUpUser(
                             ref, // Pass ref
                             firstNameController.text,
                             lastNameController.text,
-                            userNameController.text, // Pass username
+                            userNameController.text,
                             emailController.text,
                             passwordController.text,
                             confirmPasswordController.text,

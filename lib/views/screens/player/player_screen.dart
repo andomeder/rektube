@@ -60,7 +60,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
       ),
       body: SingleChildScrollView(
         child: Obx(() {
-          // Still observe overall state changes
           final track = playerController.currentTrack.value;
           final isPlaying = playerController.isPlaying.value;
           final duration = playerController.duration.value;
@@ -72,15 +71,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
             );
           }
 
-          final fullThumbnailUrl = track.thumbnailPath != null && track.thumbnailPath!.isNotEmpty
-              ? '$pipedInstanceUrl${track.thumbnailPath}' // Prepend base URL
-              : null;
-
-
-          // Calculate max value for slider (use 1.0 if duration is unknown/zero)
+          final fullThumbnailUrl =
+              track.thumbnailPath != null && track.thumbnailPath!.isNotEmpty
+                  ? '$pipedInstanceUrl${track.thumbnailPath}' 
+                  : null;
           final double maxSliderValue =
               duration > Duration.zero ? duration.inSeconds.toDouble() : 1.0;
-          // Ensure current slider value doesn't exceed max duration when duration becomes available
           if (_sliderValue > maxSliderValue) {
             _sliderValue = maxSliderValue;
           }
@@ -113,14 +109,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),
                           ],
                         ),
                         child: ClipRRect(
-                          // Clip the image
                           borderRadius: BorderRadius.circular(12.0),
                           child:
                               fullThumbnailUrl != null
@@ -169,20 +164,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       const SizedBox(height: 15),
                       Consumer(
                         builder: (context, ref, child) {
-                          // track is available from the outer Obx scope
                           final currentTrack =
                               playerController.currentTrack.value;
                           final userId =
                               ref.watch(authControllerProvider).valueOrNull?.id;
-
-                          // Watch the new provider, passing the current track ID IF available
                           final isLikedAsync = ref.watch(
                             isTrackLikedProvider(
                               currentTrack?.id ?? '',
-                            ), // Pass ID or empty string if null
+                            ), 
                           );
 
-                          // Disable button if no track or no user
                           final bool canLike =
                               userId != null && currentTrack != null;
 
@@ -214,7 +205,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                 );
                               },
                             ),
-                            // Use canLike to enable/disable onPressed
                             onPressed:
                                 canLike
                                     ? () async {
@@ -228,18 +218,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                           await libraryRepo.unlikeSong(
                                             userId!,
                                             currentTrack!.id,
-                                          ); // Use definite non-null
+                                          ); 
                                         } else {
                                           await libraryRepo.likeSong(
                                             userId!,
                                             currentTrack!,
-                                          ); // Use definite non-null
+                                          );
                                         }
-                                        // Invalidate the family provider WITH the specific track ID
                                         ref.invalidate(
                                           isTrackLikedProvider(currentTrack.id),
                                         );
-                                        // Invalidate the stream for the library screen list
                                         ref.invalidate(
                                           likedSongsStreamProvider,
                                         );
@@ -251,7 +239,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                         );
                                       }
                                     }
-                                    : null, // Disable if canLike is false
+                                    : null,
                           );
                         },
                       ),
@@ -276,7 +264,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           min: 0.0,
                           max: maxSliderValue,
                           activeColor: theme.colorScheme.primary,
-                          inactiveColor: Colors.grey.withOpacity(0.4),
+                          inactiveColor: Colors.grey.withValues(alpha: 0.4),
                           onChangeStart: (value) {
                             setState(() {
                               _isSeeking = true; // Start seeking
@@ -285,22 +273,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           onChanged: (value) {
                             setState(() {
                               _sliderValue =
-                                  value; // Update local slider value immediately
+                                  value; 
                             });
                           },
                           onChangeEnd: (value) {
-                            // When user releases slider, seek the player
                             playerController.seek(
                               Duration(seconds: value.toInt()),
                             );
-                            // Short delay before resuming stream updates to avoid jitter
                             Future.delayed(
                               const Duration(milliseconds: 200),
                               () {
                                 if (mounted) {
-                                  // Check if widget is still mounted
                                   setState(() {
-                                    _isSeeking = false; // Stop seeking
+                                    _isSeeking = false; 
                                   });
                                 }
                               },
@@ -339,27 +324,31 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // TODO: Add Shuffle Button
-                        IconButton(
-                          iconSize: 26,
-                          icon: const Icon(Icons.shuffle),
-                          color: Colors.grey,
-                          onPressed: () {
-                            Get.snackbar("Info", "Shuffle not implemented");
-                          },
+                        Obx(
+                          () => IconButton(
+                            iconSize: 26,
+                            icon: const Icon(Icons.shuffle),
+                            color:
+                                playerController.isShuffled.value
+                                    ? theme.colorScheme.primary
+                                    : Colors.grey,
+                            onPressed:
+                                playerController
+                                    .toggleShuffle, 
+                          ),
                         ),
-                        // TODO: Add Previous Button
                         IconButton(
                           iconSize: 36,
                           icon: const Icon(Icons.skip_previous_rounded),
-                          color: Colors.grey,
-                          onPressed: () {
-                            Get.snackbar("Info", "Previous not implemented");
-                          },
+                          color:
+                              playerController.currentQueue.isNotEmpty
+                                  ? theme.colorScheme.onSurface
+                                  : Colors.grey,
+                          onPressed:
+                              playerController
+                                  .previous, 
                         ),
-                        // Play/Pause Button
                         IconButton(
-                          iconSize: 64,
                           icon: Icon(
                             isPlaying
                                 ? Icons.pause_circle_filled_rounded
@@ -368,24 +357,42 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           color: theme.colorScheme.primary,
                           onPressed: playerController.playPause,
                         ),
-                        // TODO: Add Next Button
                         IconButton(
                           iconSize: 36,
                           icon: const Icon(Icons.skip_next_rounded),
-                          color: Colors.grey,
-                          onPressed: () {
-                            Get.snackbar("Info", "Next not implemented");
-                          },
+                          color:
+                              playerController.currentQueue.isNotEmpty
+                                  ? theme.colorScheme.onSurface
+                                  : Colors.grey,
+                          onPressed:
+                              playerController.next, 
                         ),
-                        // TODO: Add Repeat Button
-                        IconButton(
-                          iconSize: 26,
-                          icon: const Icon(Icons.repeat),
-                          color: Colors.grey,
-                          onPressed: () {
-                            Get.snackbar("Info", "Repeat not implemented");
-                          },
-                        ),
+                        Obx(() {
+                          IconData repeatIcon;
+                          Color repeatColor;
+                          switch (playerController.repeatMode.value) {
+                            case RepeatMode.off:
+                              repeatIcon = Icons.repeat;
+                              repeatColor = Colors.grey;
+                              break;
+                            case RepeatMode.one:
+                              repeatIcon = Icons.repeat_one;
+                              repeatColor = theme.colorScheme.primary;
+                              break;
+                            case RepeatMode.all:
+                              repeatIcon = Icons.repeat;
+                              repeatColor = theme.colorScheme.primary;
+                              break;
+                          }
+                          return IconButton(
+                            iconSize: 26,
+                            icon: Icon(repeatIcon),
+                            color: repeatColor,
+                            onPressed:
+                                playerController
+                                    .cycleRepeatMode,
+                          );
+                        }),
                       ],
                     ),
                   ),

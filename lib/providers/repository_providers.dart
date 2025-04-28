@@ -14,7 +14,6 @@ final secureStorageProvider = Provider<SecureStorageService>((ref) {
 
 // Provider for AuthRepository
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  // Depend on UserDao and SecureStorageService providers
   final userDao = ref.watch(userDaoProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   return AuthRepository(userDao, secureStorage);
@@ -32,8 +31,8 @@ final playerRepositoryProvider = Provider<PlayerRepository>((ref) {
   return repository;
 });
 
-// --- Add Provider for LibraryRepository ---
+// Provider for LibraryRepository
 final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
-  // LibraryRepository depends on Ref to get DAOs
+
   return LibraryRepository(ref);
 });

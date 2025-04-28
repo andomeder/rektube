@@ -29,7 +29,7 @@ class LikedSongDao extends DatabaseAccessor<AppDatabase> with _$LikedSongDaoMixi
   // Like a song
   Future<int> likeSong(LikedSongsCompanion song) {
      // The unique constraint in the table definition handles duplicates
-     return into(likedSongs).insert(song, mode: InsertMode.insertOrIgnore); // Ignore if already exists
+     return into(likedSongs).insert(song, mode: InsertMode.insertOrIgnore);
   }
 
   // Unlike a song

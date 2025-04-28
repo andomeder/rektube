@@ -16,20 +16,19 @@ class AuthRepository {
   final SecureStorageService _secureStorage;
 
   // StreamController to broadcast authentication state changes.
-  // Using .broadcast() allows multiple listeners.
-  final _authStateController = StreamController<model_user.AppUser?>.broadcast();
+  final _authStateController =
+      StreamController<model_user.AppUser?>.broadcast();
 
-  // Public stream getter
-  Stream<model_user.AppUser?> get authStateChanges => _authStateController.stream;
+  Stream<model_user.AppUser?> get authStateChanges =>
+      _authStateController.stream;
 
-  // Consider using Riverpod for dependency injection later
   AuthRepository(this._userDao, this._secureStorage);
-
 
   void dispose() {
     _authStateController.close();
   }
-  Future<model_user.AppUser> signUp ({
+
+  Future<model_user.AppUser> signUp({
     required String firstName,
     required String lastName,
     required String username,
@@ -61,16 +60,15 @@ class AuthRepository {
     );
 
     try {
-      // Insert the user into the database
       final userId = await _userDao.createUser(userCompanion);
 
-      // Fetch the created user to return the model
       final dbUser = await _userDao.findUserById(userId);
       if (dbUser == null) {
-        throw DatabaseException("Failed to retrieve created user after insert.");
+        throw DatabaseException(
+          "Failed to retrieve created user after insert.",
+        );
       }
 
-      // Handle successful sign up by loggin the user in
       await _handleLoginSuccess(dbUser);
       final appUser = model_user.AppUser.fromDbUser(dbUser);
       _authStateController.add(appUser);
@@ -78,28 +76,34 @@ class AuthRepository {
     } catch (e, st) {
       print("Sign up Error: $e");
       print("Stack trace: $st");
-      // Rethrow specific exceptions if needed, otherwise a general one
       if (e is DatabaseException || e is AuthException) {
         rethrow;
       }
-      throw DatabaseException("Failed to create user account. Please try again.");
+      throw DatabaseException(
+        "Failed to create user account. Please try again.",
+      );
     }
   }
-  Future<model_user.AppUser> login ({
+
+  Future<model_user.AppUser> login({
     required String usernameOrEmail,
     required String password,
   }) async {
-    User? dbUser = await _userDao.findUserByUsername(usernameOrEmail) ?? await _userDao.findUserByEmail(usernameOrEmail);
+    User? dbUser =
+        await _userDao.findUserByUsername(usernameOrEmail) ??
+        await _userDao.findUserByEmail(usernameOrEmail);
     if (dbUser == null) {
       throw AuthException('Invalid username/email or password.');
     }
 
-    final bool passwordMatches = await _verifyPassword(password, dbUser.passwordHash);
+    final bool passwordMatches = await _verifyPassword(
+      password,
+      dbUser.passwordHash,
+    );
     if (!passwordMatches) {
       throw AuthException('Invalid username/email or password.');
     }
 
-    // Handle successful login by loggin the user in
     await _handleLoginSuccess(dbUser);
     final appUser = model_user.AppUser.fromDbUser(dbUser);
     _authStateController.add(appUser);
@@ -112,10 +116,7 @@ class AuthRepository {
     print("User logged out and auth stream updated.");
   }
 
-   // --- Helper Methods ---
-
   Future<String> _hashPassword(String password) async {
-    // BCrypt hashing (adjust salt rounds as needed, default is often 10-12)
     //return await Future(() => BCrypt.hashpw(password, BCrypt.gensalt()));
     //return await compute(BCrypt.hashpw, password, BCrypt.gensalt());
     return BCrypt.hashpw(password, BCrypt.gensalt());
@@ -123,7 +124,6 @@ class AuthRepository {
 
   Future<bool> _verifyPassword(String password, String hash) async {
     try {
-      // Using compute isolates verification
       // return await compute(BCrypt.checkpw, password, hash);
       return BCrypt.checkpw(password, hash);
     } catch (e) {
@@ -131,13 +131,15 @@ class AuthRepository {
       return false;
     }
   }
-  // Stores user ID upon successful login/signup for session persistence in this direct-DB model.
+
   Future<void> _handleLoginSuccess(User dbUser) async {
     await _secureStorage.saveUserId(dbUser.id.toString());
     final _getStorage = GetStorage();
     await _getStorage.write(storageUsernameKey, dbUser.username);
 
-    print("Login successful handled for user ID: ${dbUser.id}. User ID stored securely.");
+    print(
+      "Login successful handled for user ID: ${dbUser.id}. User ID stored securely.",
+    );
   }
 
   // Method to chack initial auth status (eg on app startup)
@@ -158,14 +160,12 @@ class AuthRepository {
     }
 
     if (appUser == null) {
-      // If no valid user is found ensure storage is cleared
       await _secureStorage.deleteAll();
       print("No valid user session found in secure storage.");
     } else {
-           // Optional: Print the string dates received from DB for debugging
-           print("Initial Auth - dbUser.createdAt (String): ${dbUser?.createdAt}");
-           print("Initial Auth - dbUser.updatedAt (String): ${dbUser?.updatedAt}");
-       }
+      print("Initial Auth - dbUser.createdAt (String): ${dbUser?.createdAt}");
+      print("Initial Auth - dbUser.updatedAt (String): ${dbUser?.updatedAt}");
+    }
 
     _authStateController.add(appUser);
     return appUser;

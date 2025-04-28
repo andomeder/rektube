@@ -25,7 +25,7 @@ class Track extends Equatable {
   factory Track.fromJson(Map<String, dynamic> json) {
     final rawUrl = json['url'] as String;
     String? thumbnailPathOnly;
-    final originalThumbnailUrl = json['thumbnail'] as String; // Added
+    final originalThumbnailUrl = json['thumbnail'] as String; 
 
     if (originalThumbnailUrl != null) {
       try {
@@ -52,7 +52,7 @@ class Track extends Equatable {
 
   }
 
-  // Factory constructor to create a Track from a Piped SearchItem (Stream type)
+
   factory Track.fromPipedSearchItem(PipedSearchItem item) {
     if (item.type != PipedSearchItemType.stream || item.url == null) {
       throw ArgumentError('SearchItem must be a stream type with a URL to be converted to a Track.');
@@ -60,7 +60,6 @@ class Track extends Equatable {
 
     final stream = item as PipedSearchItemStream;
 
-    // Extract video ID from URL (e.g., /watch?v=VIDEO_ID)
     final uri = Uri.parse(stream.url!);
     final videoId = uri.queryParameters['v'];
 

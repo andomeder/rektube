@@ -17,26 +17,25 @@ void showSnackbar(String title, String message, {bool isError = false}) {
 
 String rewritePipedUrlForLocalDev(String? originalUrl) {
   if (originalUrl == null) {
-    return ''; // Return empty string or a placeholder URL if needed
+    return '';
   }
 
-  const String internalProxyHost = 'pipedproxy.rektube'; // The hostname used internally by Piped
+  const String internalProxyHost = 'pipedproxy.rektube'; 
 
 
-  String ngrokHost = dotenv.env['NGROK_HOST']!; // The hostname used by ngrok
-  const int ngrokPort = 443; // or null if using HTTPS default 443
+  String ngrokHost = dotenv.env['NGROK_HOST']!; 
+  const int ngrokPort = 443; 
 
 
-  //const String localForwardHost = '127.0.0.1'; // Use localhost/127.0.0.1 for adb reverse
-  //const int localForwardPort = 3142; // The host port mapped to Caddy
+  //const String localForwardHost = '127.0.0.1';
+  //const int localForwardPort = 3142; 
 
   try {
     final uri = Uri.parse(originalUrl);
-    // Check if the host matches the internal proxy name
     if (uri.host == internalProxyHost) {
       // Replace host and port
       final newUri = uri.replace(
-        scheme: 'https', // Assuming local dev is http
+        scheme: 'https', 
         //host: localForwardHost,
         host: ngrokHost,
         //port: localForwardPort,
@@ -47,10 +46,8 @@ String rewritePipedUrlForLocalDev(String? originalUrl) {
     }
   } catch (e) {
     print("Error parsing/rewriting URL '$originalUrl': $e");
-    // Return original URL or empty string on error
     return originalUrl;
   }
 
-  // If host doesn't match, return the original URL unchanged
   return originalUrl;
 }

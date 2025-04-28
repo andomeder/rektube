@@ -20,7 +20,7 @@ class PlaylistDao extends DatabaseAccessor<AppDatabase> with _$PlaylistDaoMixin 
     return into(playlists).insert(playlist); // Returns new playlist ID
   }
 
-  // Delete a playlist (handle deleting items separately or use cascade)
+  // Delete a playlist 
   Future<int> deletePlaylist(int playlistId) {
      return (delete(playlists)..where((p) => p.id.equals(playlistId))).go();
   }

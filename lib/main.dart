@@ -78,7 +78,6 @@ class MyApp extends ConsumerWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeController.themeMode,
-      // Conditionally display screens based on the AsyncValue state
       home: authState.when(
         data: (user) {
           print(
@@ -94,12 +93,11 @@ class MyApp extends ConsumerWidget {
           );
         },
         error: (error, stackTrace) {
-          // Show a more informative error message
           print(
             "MyApp build: Auth state error - $error\nStack trace:\n$stackTrace",
           );
           return Scaffold(
-            backgroundColor: colorBackground, // Use theme color
+            backgroundColor: colorBackground, 
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -124,11 +122,10 @@ class MyApp extends ConsumerWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      // Show a user-friendly message or the specific error
                       "Could not initialize authentication state. Please check logs or restart the app.\n\nError: $error",
                       style: const TextStyle(
                         color: colorHint,
-                      ), // Use hint color for details
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],

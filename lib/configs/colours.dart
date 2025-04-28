@@ -11,8 +11,8 @@ const Color colorHint = Colors.grey;
 
 
 const Color lightColorBackground = Color(0xFFFAFAFA);
-const Color lightColorPrimary = colorPrimary; // Keep primary accent?
+const Color lightColorPrimary = colorPrimary;
 const Color lightColorOnPrimary = Color(0xFFFFFFFF);
-const Color lightColorOnBackground = Color(0xFF000000); // Black text on light
-const Color lightColorSurface = Color(0xFFFFFFFF); // Card backgrounds etc.
+const Color lightColorOnBackground = Color(0xFF000000);
+const Color lightColorSurface = Color(0xFFFFFFFF);
 const Color lightColorHint = Colors.grey;

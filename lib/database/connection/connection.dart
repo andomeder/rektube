@@ -1,10 +1,3 @@
-// !!! IMPORTANT !!!
-// DO NOT commit database credentials directly into your code.
-// Use environment variables (flutter_dotenv) or a configuration file
-// that is listed in your .gitignore.
-// For development, you might hardcode them temporarily, but change before sharing/deploying.
-
-
 import 'package:drift/drift.dart';
 import 'package:drift_postgres/drift_postgres.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -29,7 +22,7 @@ DatabaseConnection connect() {
   ),
   settings: const pg.ConnectionSettings(
     sslMode: pg.SslMode.disable,
-    timeZone: 'UTC', // Explicitly set time zone to UTC
+    timeZone: 'UTC', 
   ));
   //return DatabaseConnection(PgDatabase(endpoint: pgConnection));
   print("PgDatabase instance created for connection.");

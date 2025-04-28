@@ -21,7 +21,6 @@ class PlaylistDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Playlist playlist = Get.arguments as Playlist;
 
-    // Watch the provider for this specific playlist's items
     final itemsAsync = ref.watch(playlistItemsProvider(playlist.id));
     final textTheme = Theme.of(context).textTheme;
 
@@ -42,7 +41,6 @@ class PlaylistDetailsScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final item = items[index];
 
-              // Convert PlaylistItem back to Track model for display/playback
               final track = model_track.Track(
                 id: item.trackId,
                 title: item.trackTitle,

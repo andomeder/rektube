@@ -10,21 +10,19 @@ class PlaylistItems extends Table {
   String get tableName => 'playlist_items';
 
   IntColumn get id => integer().autoIncrement()();
-  // Foreign key to the playlist
+
   IntColumn get playlistId => integer().named('playlist_id').references(Playlists, #id)();
-  // Store the Piped track ID (videoId)
+
   TextColumn get trackId => text().named('track_id')();
-  // Store track metadata directly here to avoid needing Piped API calls just to display playlist contents
+
   TextColumn get trackTitle => text().named('track_title')();
   TextColumn get trackArtist => text().named('track_artist')();
-  TextColumn get trackThumbnailPath => text().named('track_thumbnail_path').nullable()(); // Nullable
-  IntColumn get trackDurationSeconds => integer().named('track_duration_seconds').nullable()(); // Nullable duration in seconds
+  TextColumn get trackThumbnailPath => text().named('track_thumbnail_path').nullable()(); 
+  IntColumn get trackDurationSeconds => integer().named('track_duration_seconds').nullable()();
 
   Column<PgDateTime> get addedAt => customType(PgTypes.timestampWithTimezone)
       .named('added_at')
       .clientDefault(() => PgDateTime(DateTime.now().toUtc()))
       .map(const PostgreSQLTimestampConverter())();
 
-  // Optional: Add an order column if you want user-defined playlist order
-  // IntColumn get itemOrder => integer().named('item_order').nullable()();
 }

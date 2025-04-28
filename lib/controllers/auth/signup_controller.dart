@@ -24,7 +24,7 @@ class SignUpController extends GetxController {
     String confirmPassword, 
   ) async {
 
-    // --- Local Validation --- (Also handled by Form key in UI)
+    // Local Validation 
     final validationError = _validateAllFields(firstName, lastName, username, email, password, confirmPassword);
     if (validationError != null) {
       showSnackbar("Validation Error", validationError, isError: true);
@@ -32,44 +32,36 @@ class SignUpController extends GetxController {
     }
 
 
-    isLoading.value = true; // Show loading indicator
+    isLoading.value = true;
 
     try {
-      // Access the AuthRepository via Riverpod
       final authRepo = ref.read(authRepositoryProvider);
 
-      // Call the repository's signUp method
       final user = await authRepo.signUp(
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         username: username.trim(),
         email: email.trim().toLowerCase(),
-        password: password.trim(), // Send the original password
+        password: password.trim(),
       );
 
-      // --- Signup Successful ---
+      // Signup Successful
       Get.offAllNamed(AppRoutes.navigation);
 
     } on AuthException catch (e) {
-      // Handle specific auth errors (e.g., username/email already exists)
       showSnackbar("Signup Failed", e.message, isError: true);
     } on DatabaseException catch (e) {
-       // Handle errors related to database operations during signup
        showSnackbar("Signup Error", e.message, isError: true);
     } on NetworkException catch (e) {
-       // Handle network errors if signup involved network calls
        showSnackbar("Network Error", e.message, isError: true);
     } catch (e) {
-       // Handle any other unexpected errors
        print("Signup Controller Error: $e");
        showSnackbar("Error", "An unexpected error occurred during sign up.", isError: true);
     } finally {
-      // Ensure loading indicator is turned off
       isLoading.value = false;
     }
   }
 
-  /// Helper function for local validation (optional duplication of Form validation)
   String? _validateAllFields(String firstName, String lastName, String username, String email, String password, String confirmPassword) {
      final errors = [
         Validators.validateNotEmpty(firstName, 'First Name'),

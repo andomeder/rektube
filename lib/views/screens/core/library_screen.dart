@@ -1,22 +1,19 @@
-// lib/views/screens/core/library_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:rektube/controllers/auth/auth_controller.dart'; // To get user ID
-import 'package:rektube/database/database.dart'; // Import data classes
+import 'package:rektube/controllers/auth/auth_controller.dart';
+import 'package:rektube/database/database.dart';
 import 'package:rektube/models/track.dart' as model_track;
 import 'package:rektube/providers/repository_providers.dart';
 import 'package:rektube/utils/helpers.dart';
 import 'package:rektube/utils/routes.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
 import 'package:rektube/views/widgets/core/track_list_item.dart';
-// Import other widgets as needed (e.g., TrackListItem)
 
 
-// Individual StreamProviders for each section
 final playlistsStreamProvider = StreamProvider.autoDispose<List<Playlist>>((ref) {
   final userId = ref.watch(authControllerProvider).valueOrNull?.id;
-  if (userId == null) return Stream.value([]); // Return empty stream if not logged in
+  if (userId == null) return Stream.value([]);
   final libraryRepo = ref.watch(libraryRepositoryProvider);
   return libraryRepo.watchUserPlaylists(userId);
 });
@@ -32,7 +29,6 @@ final historyStreamProvider = StreamProvider.autoDispose<List<HistoryEntry>>((re
    final userId = ref.watch(authControllerProvider).valueOrNull?.id;
   if (userId == null) return Stream.value([]);
   final libraryRepo = ref.watch(libraryRepositoryProvider);
-  // You can adjust the limit here if needed
   return libraryRepo.watchHistory(userId, limit: 20);
 });
 
@@ -96,7 +92,6 @@ class LibraryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch individual stream providers
     final playlistsAsync = ref.watch(playlistsStreamProvider);
     final likedSongsAsync = ref.watch(likedSongsStreamProvider);
     final historyAsync = ref.watch(historyStreamProvider);
@@ -107,20 +102,16 @@ class LibraryScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text("Library"),
         automaticallyImplyLeading: false,
-        // Optional: Add 'Create Playlist' button
         actions: [ IconButton(icon: Icon(Icons.add_box_outlined),tooltip: "Create Playlist" ,onPressed: () => _showCreatePlaylistDialog(context, ref)) ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-            // Invalidate providers to force re-fetch (streams might auto-update though)
             ref.invalidate(playlistsStreamProvider);
             ref.invalidate(likedSongsStreamProvider);
             ref.invalidate(historyStreamProvider);
-            // Give some time for providers to update if needed
             await Future.delayed(const Duration(milliseconds: 500));
          },
-          // Use DefaultTabController or custom scrolling for sections
-          child: ListView( // Simple list for now
+          child: ListView(
             children: [
              // --- Playlists Section ---
              Padding(
@@ -169,7 +160,7 @@ class LibraryScreen extends ConsumerWidget {
              historyAsync.when(
                data: (history) => history.isEmpty
                  ? const ListTile(dense: true, title: Text("No playback history yet."))
-                 : Column( // Use Column to avoid nested ListViews
+                 : Column(
                      children: history.map((entry) {
                         final track = model_track.Track(
                            id: entry.trackId,
@@ -187,7 +178,7 @@ class LibraryScreen extends ConsumerWidget {
                loading: () => const Center(child: Padding(padding: EdgeInsets.all(8.0), child: LoadingIndicator())),
                error: (err, st) => ListTile(title: Text("Error loading history: $err")),
              ),
-             const SizedBox(height: 70), // Padding at bottom for mini player
+             const SizedBox(height: 70), 
            ],
          ),
       ),

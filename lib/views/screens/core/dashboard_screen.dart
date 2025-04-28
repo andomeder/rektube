@@ -39,7 +39,6 @@ class DashboardScreen extends ConsumerWidget {
                   Get.snackbar("Info", "Settings menu not implemented yet.");
                   break;
                 case ProfileAction.logout:
-                  // TODO: Logout
                   print("Logout selected");
                   await ref
                       .read(authControllerProvider.notifier)
@@ -98,7 +97,6 @@ class DashboardScreen extends ConsumerWidget {
                   title: Text("No recently played tracks."),
                 );
               }
-              // Use a horizontally scrolling list (ListView.builder horizontal)
               return SizedBox(
                 height: 180,
                 child: ListView.builder(
@@ -117,7 +115,6 @@ class DashboardScreen extends ConsumerWidget {
                               ? Duration(seconds: entry.trackDurationSeconds!)
                               : null,
                     );
-                    // Use a custom card or widget for horizontal display
                     return _buildHorizontalTrackCard(context, ref, track);
                   },
                 ),
@@ -164,11 +161,9 @@ class DashboardScreen extends ConsumerWidget {
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      // Show limited items
                       itemCount: liked.length > 10 ? 10 : liked.length,
                       itemBuilder: (context, index) {
                         final likedSong = liked[index];
-                        // convert LikedSong back to Trackmodel for widget
                         final track = model_track.Track(id: likedSong.trackId, title: likedSong.trackTitle, artist: likedSong.trackArtist, thumbnailPath: likedSong.trackThumbnailPath, duration: likedSong.trackDurationSeconds != null ? Duration(seconds: likedSong.trackDurationSeconds!) : null);
                         return _buildHorizontalTrackCard(context, ref, track);
                       },
@@ -180,7 +175,6 @@ class DashboardScreen extends ConsumerWidget {
             }
             ),
 
-          // --- Other sections like 'Recommended', 'New Releases' can be added later ---
           const SizedBox(height: 24),
         ],
       ),

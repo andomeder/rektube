@@ -1,4 +1,3 @@
-// lib/database/daos/playlist_item_dao.dart
 import 'package:drift/drift.dart';
 import 'package:rektube/database/database.dart';
 import 'package:rektube/database/tables/playlist_items.dart';
@@ -20,7 +19,6 @@ class PlaylistItemDao extends DatabaseAccessor<AppDatabase> with _$PlaylistItemD
 
   // Add a track to a playlist
   Future<int> addTrackToPlaylist(PlaylistItemsCompanion item) {
-     // Consider checking if item already exists first if needed
     return into(playlistItems).insert(item);
   }
 

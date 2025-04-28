@@ -21,7 +21,6 @@ class PipedRepository {
   }
 
 
-  ///Searches for streams (videos) on Piped
   Future<List<Track>> searchStreams(String query) async {
     if (query.isEmpty) {
       return [];
@@ -29,12 +28,10 @@ class PipedRepository {
 
     print("PipedRepository: Searching for '$query'...");
     try {
-      // Search for streams only
       final searchResults = await _pipedClient.search(query, PipedFilter.videos);
       final List<Track> tracks = [];
 
       for (final item in searchResults.items) {
-        // Only process stream items that have necessary info
         if (item is PipedSearchItemStream) {
           try {
             tracks.add(Track.fromPipedSearchItem(item));
@@ -77,7 +74,7 @@ class PipedRepository {
   //   }
   // }
 
-  // *** Modify getStreamInfo to use direct Dio call to JSON endpoint ***
+  // Modify getStreamInfo to use direct Dio call to JSON endpoint
   Future<Map<String, dynamic>> getStreamInfoJson(String videoId) async {
     final url = '$pipedInstanceUrl/streams/$videoId'; // Target JSON endpoint
     print("PipedRepository: Getting stream info JSON from: $url");
@@ -86,14 +83,13 @@ class PipedRepository {
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
         print("PipedRepository: Successfully received stream info JSON for '$videoId'");
-        return response.data as Map<String, dynamic>; // Return the parsed JSON map
+        return response.data as Map<String, dynamic>; 
       } else {
          print("PipedRepository: Received non-200 status or invalid data format for stream info. Status: ${response.statusCode}, Data: ${response.data}");
          throw PipedException("Failed to get valid stream info (Status: ${response.statusCode})");
       }
     } on DioException catch (e) {
       print("PipedRepository: DioException getting stream info JSON: ${e.response?.statusCode} - ${e.message}");
-       // Check for the specific error message from the JSON response if possible
        String errorMessage = "Failed to get stream info.";
        if (e.response?.data is Map) {
           final errorData = e.response!.data as Map;
@@ -139,9 +135,7 @@ class PipedRepository {
 
   */
 
-  // Suggestions and Trending remain largely the same (using direct Dio calls)
   Future<List<String>> getSuggestions(String query) async {
-      // ... (implementation using _dioClient.get remains the same) ...
        if (query.isEmpty) return [];
        final url = '$pipedInstanceUrl/suggestions?query=${Uri.encodeComponent(query)}';
        print("PipedRepository: Getting suggestions from URL: $url");
@@ -186,7 +180,6 @@ class PipedRepository {
 
 
    Future<List<Track>> getTrending({String region = 'US'}) async {
-       // ... (implementation using _dioClient.get and Track.fromJson remains the same) ...
        final url = '$pipedInstanceUrl/trending?region=${Uri.encodeComponent(region)}';
        print("PipedRepository: Getting trending from URL: $url");
        try {

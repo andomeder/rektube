@@ -34,7 +34,6 @@ part 'database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase(QueryExecutor e) : super(e);
 
-  // Define a factory constructor or singleton for easier access (optional)
   static final AppDatabase instance = AppDatabase(conn.connect().executor);
 
   // Register type converters globally
@@ -45,18 +44,17 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 2;
 
-  // Optional: Migration strategy
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) async {
-      await m.createAll(); // Creates all tables based on definitions
+      await m.createAll(); 
       print("Drift database tables created!");
     },
     onUpgrade: (Migrator m, int from, int to) async {
-      // Implement logic for upgrading schema versions here later
       print("Upgrading database schema from $from to $to");
       if (from < 2) {
-        // Example: await m.addColumn(users, users.newColumn);
+        // await m.addColumn(users, users.newColumn);
       }
     },
     beforeOpen: (details) async {

@@ -16,7 +16,6 @@ class AppUser extends Equatable {
     required this.email,
   });
 
-  // Optional: Factory constructor from Drift's User data class
   factory AppUser.fromDbUser(User dbUser) {
     return AppUser(
       id: dbUser.id,
@@ -26,7 +25,7 @@ class AppUser extends Equatable {
       email: dbUser.email,
     );
   }
-  // Equatable implementation
+
   @override
   List<Object?> get props => [id, firstName, lastName, username, email];
 }

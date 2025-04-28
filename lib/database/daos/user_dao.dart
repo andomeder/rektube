@@ -12,7 +12,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   // Custom methods
   Future<User?> findUserByUsername(String username) {
     return (select(users)..where((u) => u.username.equals(username)))
-        .getSingleOrNull(); // Returns one user or null
+        .getSingleOrNull();
   }
   // Find a user by email
   Future<User?> findUserByEmail(String email) {
@@ -26,8 +26,7 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
         .getSingleOrNull();
   }
 
-  // Insert a new user using a Companion (safely handles defaults/nulls)
   Future<int> createUser(UsersCompanion user) {
-    return into(users).insert(user); // Returns the generated ID
+    return into(users).insert(user); 
   }
 }
