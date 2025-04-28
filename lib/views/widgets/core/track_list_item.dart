@@ -6,18 +6,16 @@ import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/models/track.dart';
 import 'package:get/get.dart';
 import 'package:rektube/providers/repository_providers.dart';
+import 'package:rektube/utils/exceptions.dart';
 import 'package:rektube/utils/helpers.dart';
 import 'package:rektube/views/screens/core/library_screen.dart';
 import 'package:rektube/views/widgets/common/loading_indicator.dart';
+
 class TrackListItem extends ConsumerWidget {
   final Track track;
   final VoidCallback? onTap;
 
-  const TrackListItem({
-    super.key,
-    required this.track,
-    this.onTap,
-  });
+  const TrackListItem({super.key, required this.track, this.onTap});
 
   //Helper to formart duration
   String _formatDuration(Duration? duration) {
@@ -32,7 +30,11 @@ class TrackListItem extends ConsumerWidget {
     return "$minutes:$seconds";
   }
 
-  void _showAddToPlaylistDialog(BuildContext context, WidgetRef ref, Track trackToAdd) {
+  void _showAddToPlaylistDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Track trackToAdd,
+  ) {
     final userId = ref.read(authControllerProvider).valueOrNull?.id;
 
     if (userId == null) return;
@@ -48,7 +50,9 @@ class TrackListItem extends ConsumerWidget {
           child: playlistsAsync.when(
             data: (playlists) {
               if (playlists.isEmpty) {
-                return const Text("No playlists found. Create one first in the library");
+                return const Text(
+                  "No playlists found. Create one first in the library",
+                );
               }
 
               return ListView.builder(
@@ -60,24 +64,50 @@ class TrackListItem extends ConsumerWidget {
                     title: Text(playlist.name),
                     onTap: () async {
                       Get.back();
+                      print(
+                        "Attempting to add '${trackToAdd.title}' to playlist '${playlist.name}' (ID: ${playlist.id})",
+                      );
                       try {
                         final libraryRepo = ref.read(libraryRepositoryProvider);
-                        await libraryRepo.addTrackToPlaylist(playlist.id, trackToAdd);
-                        showSnackbar("Success", "Added '${trackToAdd.title}' to '${playlist.name}'");
-                      } catch (e) {
-                        showSnackbar("Error", "Failed to add track: $e", isError: true);
+                        await libraryRepo.addTrackToPlaylist(
+                          playlist.id,
+                          trackToAdd,
+                        );
+                        print("Successfully added track.");
+                        showSnackbar(
+                          "Success",
+                          "Added '${trackToAdd.title}' to '${playlist.name}'",
+                        );
+                      } on DatabaseException catch (e) {
+                        // Catch specific DB errors
+                        print("Database error adding track: $e");
+                        showSnackbar(
+                          "Error",
+                          "Database error: ${e.message}",
+                          isError: true,
+                        );
+                      } catch (e, st) {
+                        // Catch any other errors
+                        print("Generic error adding track: $e\n$st");
+                        showSnackbar(
+                          "Error",
+                          "Failed to add track: $e",
+                          isError: true,
+                        );
                       }
                     },
                   );
-                }
-                );
-            }, 
-            error: (err, st) => Text("Error loading playlists: $err"), 
-            loading: () => const Center(child: LoadingIndicator(),)
-            ),
+                },
+              );
+            },
+            error: (err, st) => Text("Error loading playlists: $err"),
+            loading: () => const Center(child: LoadingIndicator()),
+          ),
         ),
-        actions: [TextButton(onPressed: () => Get.back(), child: const Text("Cancel"))],
-      )
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
+        ],
+      ),
     );
   }
 
@@ -85,26 +115,62 @@ class TrackListItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final fullThumbnailUrl = track.thumbnailPath != null ? '$pipedInstanceUrl${track.thumbnailPath}' : null;
+    final fullThumbnailUrl =
+        track.thumbnailPath != null
+            ? '$pipedInstanceUrl${track.thumbnailPath}'
+            : null;
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 4.0,
+        horizontal: 16.0,
+      ),
       leading: SizedBox(
         width: 60,
         height: 60,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4.0),
-          child: track.thumbnailPath != null ? Image.network(track.thumbnailPath!, fit: BoxFit.cover, loadingBuilder: (context, child, progress) {
-            return progress == null ? child: const Center(
-              child: SizedBox(width: 20, height: 200, child: CircularProgressIndicator(strokeWidth: 2,),),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return Container(color: Colors.grey[800], child: const Icon(Icons.music_note_outlined, color: Colors.grey,));
-          },) : Container(color: Colors.grey[800], child: const Icon(Icons.music_note_outlined, color: Colors.grey,)),
+          child:
+              fullThumbnailUrl != null
+                  ? Image.network(
+                    fullThumbnailUrl!,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      return progress == null
+                          ? child
+                          : const Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 200,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[800],
+                        child: const Icon(
+                          Icons.music_note_outlined,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
+                  : Container(
+                    color: Colors.grey[800],
+                    child: const Icon(
+                      Icons.music_note_outlined,
+                      color: Colors.grey,
+                    ),
+                  ),
         ),
       ),
-      title: Text(track.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+      title: Text(
+        track.title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+      ),
       subtitle: Text(
         track.artist,
         maxLines: 1,
@@ -116,7 +182,9 @@ class TrackListItem extends ConsumerWidget {
         children: [
           Text(
             _formatDuration(track.duration),
-            style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary),
+            style: textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
 
           PopupMenuButton<String>(
@@ -125,17 +193,21 @@ class TrackListItem extends ConsumerWidget {
             onSelected: (String result) {
               switch (result) {
                 case 'add_playlist':
-                _showAddToPlaylistDialog(context, ref, track);
-                break;
+                  _showAddToPlaylistDialog(context, ref, track);
+                  break;
               }
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'add_playlist',
-                child: ListTile(leading: Icon(Icons.playlist_add,), title: Text("Add to Playlist"),)
-                )
-            ],
-            )
+            itemBuilder:
+                (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'add_playlist',
+                    child: ListTile(
+                      leading: Icon(Icons.playlist_add),
+                      title: Text("Add to Playlist"),
+                    ),
+                  ),
+                ],
+          ),
         ],
       ),
       onTap: onTap,

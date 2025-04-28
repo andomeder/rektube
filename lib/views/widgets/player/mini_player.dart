@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+import 'package:rektube/configs/constants.dart';
 import 'package:rektube/controllers/player/player_controller.dart';
 import 'package:rektube/models/track.dart';
 import 'package:rektube/utils/routes.dart';
 
-class MiniPlayer extends StatelessWidget {
+class MiniPlayer extends ConsumerWidget {
   const MiniPlayer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Find the PlayerController instance registered with GetX
     final PlayerController playerController = Get.find<PlayerController>();
     final theme = Theme.of(context);
@@ -20,11 +22,14 @@ class MiniPlayer extends StatelessWidget {
       final bool isPlaying = playerController.isPlaying.value;
       final Duration position = playerController.position.value;
       final Duration duration = playerController.duration.value;
+      
 
       // If no track is loading/playing, display nothing (or an empty container)
       if (currentTrack == null) {
         return const SizedBox.shrink();
       }
+
+      final fullThumbnailUrl = currentTrack.thumbnailPath != null ? '$pipedInstanceUrl${currentTrack.thumbnailPath}' : null;
 
       //Calculate progress (handle division by zero)
       final double progress =
@@ -36,7 +41,6 @@ class MiniPlayer extends StatelessWidget {
               : 0.0;
       return GestureDetector(
         onTap: () {
-          // TODO: Navigate to full player screen (Player Screen)
           print("MiniPlayer tapped - Navigate to full screen");
          Get.toNamed(AppRoutes.player);
         },
@@ -52,7 +56,7 @@ class MiniPlayer extends StatelessWidget {
                 LinearProgressIndicator(
                   value: progress,
                   minHeight: 2.5,
-                  backgroundColor: Colors.grey.withOpacity(0.3),
+                  backgroundColor: Colors.grey.withValues(alpha: 0.3),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     colorScheme.primary,
                   ),
@@ -65,12 +69,13 @@ class MiniPlayer extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(4.0),
                         child:
-                            currentTrack.thumbnailPath != null
+                            fullThumbnailUrl != null
                                 ? Image.network(
-                                  currentTrack.thumbnailPath!,
+                                  fullThumbnailUrl,
                                   width: 40,
                                   height: 40,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (c,e,s) => Container(width: 40, height: 40, color: Colors.grey[700], child: const Icon(Icons.music_note, size: 24)),
                                 )
                                 : Container(
                                   width: 40,
@@ -99,9 +104,7 @@ class MiniPlayer extends StatelessWidget {
                             Text(
                               currentTrack.artist,
                               style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withOpacity(
-                                  0.7,
-                                ),
+                                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

@@ -134,8 +134,8 @@ class DashboardScreen extends ConsumerWidget {
                 (err, st) =>
                     ListTile(title: Text("Error loading history: $err")),
           ),
-          const SizedBox(height: 24), // Padding at bottom for mini player
-          // --- Liked Songs Snippet (Optional) ---
+          const SizedBox(height: 24), 
+          // --- Liked Songs Snippet ---
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -158,7 +158,7 @@ class DashboardScreen extends ConsumerWidget {
                   if (liked.isEmpty) {
                     return const ListTile(dense: true, title: Text("No liked songs yet."),);
                   }
-                  // Horizontal list similar to history
+                  // Horizontal list
                   return SizedBox(
                     height: 180,
                     child: ListView.builder(

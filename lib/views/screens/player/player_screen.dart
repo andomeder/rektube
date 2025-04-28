@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:rektube/configs/constants.dart';
 import 'package:rektube/controllers/auth/auth_controller.dart';
 import 'package:rektube/controllers/player/player_controller.dart';
 import 'package:rektube/providers/player_providers.dart';
@@ -71,6 +72,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
             );
           }
 
+          final fullThumbnailUrl = track.thumbnailPath != null && track.thumbnailPath!.isNotEmpty
+              ? '$pipedInstanceUrl${track.thumbnailPath}' // Prepend base URL
+              : null;
+
+
           // Calculate max value for slider (use 1.0 if duration is unknown/zero)
           final double maxSliderValue =
               duration > Duration.zero ? duration.inSeconds.toDouble() : 1.0;
@@ -117,9 +123,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           // Clip the image
                           borderRadius: BorderRadius.circular(12.0),
                           child:
-                              track.thumbnailPath != null
+                              fullThumbnailUrl != null
                                   ? Image.network(
-                                    track.thumbnailPath!,
+                                    fullThumbnailUrl!,
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (c, e, s) => const Center(
