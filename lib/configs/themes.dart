@@ -8,11 +8,9 @@ final darkTheme = ThemeData(
   colorScheme: const ColorScheme.dark(
     primary: colorPrimary,
     secondary: colorAccent,
-    background: colorBackground,
     surface: colorBackground,
     onPrimary: colorOnBackground,
     onSecondary: colorOnBackground,
-    onBackground: colorOnBackground,
     onSurface: colorOnBackground,
     error: colorError,
     onError: colorOnBackground,
@@ -31,7 +29,6 @@ final darkTheme = ThemeData(
     type: BottomNavigationBarType.fixed
   ),
   inputDecorationTheme: InputDecorationTheme(
-     // Use your text_field styles or define globally here
      hintStyle: const TextStyle(color: colorHint, fontSize: 14),
      prefixIconColor: colorPrimary,
      suffixIconColor: colorPrimary,
@@ -45,7 +42,7 @@ final darkTheme = ThemeData(
      ),
      focusedBorder: OutlineInputBorder(
        borderRadius: BorderRadius.circular(10),
-       borderSide: const BorderSide(color: colorPrimary, width: 2.0), // Highlight focus
+       borderSide: const BorderSide(color: colorPrimary, width: 2.0), 
      ),
      errorBorder: OutlineInputBorder(
        borderRadius: BorderRadius.circular(10),
@@ -55,24 +52,68 @@ final darkTheme = ThemeData(
        borderRadius: BorderRadius.circular(10),
        borderSide: const BorderSide(color: colorError, width: 2.0),
      ),
-     contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), // Adjust padding
+     contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), 
   ),
    elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: colorPrimary,
-      foregroundColor: colorOnPrimary, // Text color on button
+      foregroundColor: colorOnPrimary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      minimumSize: const Size(150, 45), // Standard button size
+      minimumSize: const Size(150, 45), 
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
     ),
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: colorPrimary, // Text color for text buttons
+      foregroundColor: colorPrimary,
     ),
   ),
-   fontFamily: 'Fraunces', // Set default font
-   // Add other theme properties as needed (textTheme, cardTheme, etc.)
+   fontFamily: 'Fraunces',
+   
+);
+
+
+final lightTheme = ThemeData(
+  brightness: Brightness.light,
+  primaryColor: lightColorPrimary,
+  scaffoldBackgroundColor: lightColorBackground,
+  colorScheme: ColorScheme.light(
+     primary: lightColorPrimary,
+     secondary: colorAccent,
+     surface: lightColorSurface,
+     onPrimary: lightColorOnPrimary,
+     onSecondary: Colors.black,
+     onSurface: lightColorOnBackground, 
+     error: colorError,
+     onError: Colors.white,
+  ),
+   appBarTheme: const AppBarTheme(
+     backgroundColor: lightColorSurface,
+     elevation: 1,
+     foregroundColor: lightColorOnBackground, 
+     iconTheme: IconThemeData(color: lightColorOnBackground),
+   ),
+   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+     backgroundColor: lightColorSurface,
+     selectedItemColor: lightColorPrimary,
+     unselectedItemColor: lightColorHint,
+     showUnselectedLabels: true,
+     type: BottomNavigationBarType.fixed,
+   ),
+   inputDecorationTheme: InputDecorationTheme( 
+      hintStyle: const TextStyle(color: lightColorHint, fontSize: 14),
+      prefixIconColor: lightColorPrimary,
+      suffixIconColor: lightColorPrimary,
+      border: OutlineInputBorder( borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade400),),
+      enabledBorder: OutlineInputBorder( borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade400),),
+      focusedBorder: OutlineInputBorder( borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: lightColorPrimary, width: 2.0),),
+      errorBorder: OutlineInputBorder( borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: colorError),),
+      focusedErrorBorder: OutlineInputBorder( borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: colorError, width: 2.0),),
+      contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+   ),
+   elevatedButtonTheme: ElevatedButtonThemeData( /* TODO: Adjust style*/ ),
+   textButtonTheme: TextButtonThemeData( /* TODO: Adjust style*/ ),
+   fontFamily: 'Fraunces',
 );

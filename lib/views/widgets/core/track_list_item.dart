@@ -119,6 +119,7 @@ class TrackListItem extends ConsumerWidget {
         track.thumbnailPath != null
             ? '$pipedInstanceUrl${track.thumbnailPath}'
             : null;
+    print("TrackListItem build: fullThumbnailUrl = $fullThumbnailUrl");
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
@@ -133,7 +134,7 @@ class TrackListItem extends ConsumerWidget {
           child:
               fullThumbnailUrl != null
                   ? Image.network(
-                    fullThumbnailUrl!,
+                    fullThumbnailUrl,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, progress) {
                       return progress == null

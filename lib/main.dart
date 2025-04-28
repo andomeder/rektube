@@ -28,15 +28,13 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 // }
 
 void main() async {
-  // --- Start Initialization ---
   //WidgetsFlutterBinding.ensureInitialized();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   MediaKit.ensureInitialized();
 
-  // Load environment variables FIRST
   try {
-    await dotenv.load(fileName: ".env"); // Specify filename if needed
+    await dotenv.load(fileName: ".env"); 
     print(".env file loaded successfully.");
   } catch (e) {
     print("Error loading .env file: $e");
@@ -62,7 +60,6 @@ void main() async {
 
 
   FlutterNativeSplash.remove();
-  // Run the app within Riverpod's ProviderScope
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
@@ -74,12 +71,11 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeController themeController = Get.find<ThemeController>();
-    // Watch the auth state provided by AuthController
     final authState = ref.watch(authControllerProvider);
 
     return Obx (() => GetMaterialApp(
       title: 'Rektube',
-      theme: darkTheme,
+      theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeController.themeMode,
       // Conditionally display screens based on the AsyncValue state
@@ -93,7 +89,7 @@ class MyApp extends ConsumerWidget {
         loading: () {
           print("MyApp build: Auth state loading");
           return const Scaffold(
-            backgroundColor: colorBackground, // Use theme background
+            backgroundColor: colorBackground,
             body: Center(child: LoadingIndicator()),
           );
         },
