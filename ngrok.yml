@@ -1,0 +1,12 @@
+version: 3
+agent:
+  authtoken: #<YOUR_AUTH_TOKEN>
+
+tunnels:
+  caddy-http:
+    proto: http
+    addr: 3142
+
+  postgres-tcp:
+    proto: tcp
+    addr: 5432
