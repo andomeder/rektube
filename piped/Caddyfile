@@ -1,0 +1,34 @@
+(global) {
+  header {
+    Strict-Transport-Security max-age=31536000
+    Referrer-Policy no-referrer
+  }
+}
+
+:80 {
+  import global
+
+  route /videoplayback* {
+    reverse_proxy unix//var/run/ytproxy/actix.sock {
+      # Pass necessary headers, remove others if needed
+      header_up Host {http.request.host} # Pass the original host header
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto {http.request.scheme}
+      # Optional: Remove headers Piped proxy might add
+      # header_down Etag
+      # header_down Alt-Svc
+    }
+  }
+  
+  route /vi/* {
+    reverse_proxy unix//var/run/ytproxy/actix.sock {
+      header_up Host {http.request.host}
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto {http.request.scheme}
+    }
+  }
+
+  route {
+    reverse_proxy piped-backend:8080
+  }
+}
