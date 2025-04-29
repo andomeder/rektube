@@ -10,7 +10,6 @@ import 'package:rektube/utils/validators.dart'; // Use validators defined previo
 final signUpControllerProvider = Provider((ref) => SignUpController());
 
 class SignUpController extends GetxController {
-  // Reactive variable for loading state
   var isLoading = false.obs;
 
 
@@ -45,7 +44,6 @@ class SignUpController extends GetxController {
         password: password.trim(),
       );
 
-      // Signup Successful
       Get.offAllNamed(AppRoutes.navigation);
 
     } on AuthException catch (e) {

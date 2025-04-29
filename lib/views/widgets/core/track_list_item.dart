@@ -17,7 +17,6 @@ class TrackListItem extends ConsumerWidget {
 
   const TrackListItem({super.key, required this.track, this.onTap});
 
-  //Helper to formart duration
   String _formatDuration(Duration? duration) {
     if (duration == null) return '--:--';
     String twoDigits(int n) => n.toString().padLeft(2, '0');

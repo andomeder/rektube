@@ -62,7 +62,7 @@ class AuthController extends StateNotifier<AsyncValue<AppUser?>> {
 
   @override
   void dispose() {
-    _authSubscription?.cancel(); // Cancel the subscription
+    _authSubscription?.cancel();
     print("AuthController disposed, auth subscription cancelled.");
     super.dispose();
   }
